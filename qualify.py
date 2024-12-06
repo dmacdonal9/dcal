@@ -32,14 +32,14 @@ def qualify_contract(symbol: str, secType: str, lastTradeDateOrContractMonth: st
         raise ValueError("Unsupported contract type. Supported types are STK, FUT, FOP, OPT, IND.")
 
     try:
-        print(f"Info: Attempting to qualify contract: {contract}")
+        #print(f"Info: Attempting to qualify contract: {contract}")
         ib.qualifyContracts(contract)
 
         # Verify if contract qualification was successful
         if contract.conId == 0:
             raise ValueError(f"Error: Failed to qualify contract: {contract}")
 
-        print(f"Info: Contract qualified successfully: {contract}")
+        #print(f"Info: Contract qualified successfully: {contract}")
         return contract
     except Exception as e:
         print(f"Error: Failed to qualify contract: {e}")

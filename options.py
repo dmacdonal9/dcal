@@ -1,10 +1,35 @@
 from datetime import datetime
-from ib_insync import Contract, Option
+from ib_insync import Contract, Option, FuturesOption
 from ib_instance import ib
 import math
 import logging
 
 logging.getLogger('ib_insync').setLevel(logging.CRITICAL)
+
+def find_option_closest_to_delta(tickers, right, target_delta):
+    options = [option for option in tickers if option.contract.right == right and option.modelGreeks is not None]
+
+    print("find_option_closest_to_delta(): ", right, target_delta)
+    print("find_option_closest_to_delta(): Before filtering we have: ", len(options))
+
+    if not options:
+        print(f"find_option_closest_to_delta(): nothing found close to delta {target_delta}")
+        return None
+
+    # Filter for options with delta equal or greater than target_delta
+    filtered_options = [option for option in options if (abs(option.modelGreeks.delta) * 100)  <= target_delta]
+    print("find_option_closest_to_delta(): After delta filter we have count of: ", len(filtered_options))
+    # Get the option with maximum strike among the filtered options
+    closest_option = max(filtered_options, key=lambda x: x.contract.strike, default=None)
+    print(closest_option)
+
+    if closest_option:
+        print(
+            f"find_option_closest_to_delta(): closest option strike is {closest_option.contract.strike} with delta {closest_option.modelGreeks.delta}")
+    else:
+        print("No options with delta less than or equal to target_delta were found.")
+
+    return closest_option
 
 def get_closest_strike(contract, right, exchange, expiry, price):
     print(f"Entering function: get_closest_strike with parameters: {locals()}")
@@ -18,38 +43,43 @@ def get_closest_strike(contract, right, exchange, expiry, price):
         option_contract.lastTradeDateOrContractMonth = expiry
         option_contract.right = right  # 'C' for Call, 'P' for Put
 
+        # Fetch option chain details
         option_chain = ib.reqContractDetails(option_contract)
         if not option_chain:
-            print("Warning: No options found for the specified parameters.")
+            print(f"Warning: No options found for symbol {contract.symbol}, expiry {expiry}, right {right}, exchange {exchange}.")
             return float('nan')
 
-        option_contracts = [detail.contract for detail in option_chain]
-        tickers = ib.reqTickers(*option_contracts)
+        # Log all available strikes
+        available_strikes = [detail.contract.strike for detail in option_chain if detail.contract.lastTradeDateOrContractMonth == expiry]
+        print(f"Info: Available strikes for {contract.symbol} on {exchange}, expiry {expiry}: {available_strikes}")
 
+        # Find the closest strike
         closest_strike = None
         min_difference = float('inf')
 
-        for contract, ticker in zip(option_contracts, tickers):
-            bid_price = ticker.bid
-            if bid_price is None or math.isnan(bid_price):
+        for detail in option_chain:
+            opt_contract = detail.contract
+            if opt_contract.lastTradeDateOrContractMonth != expiry:
                 continue
 
-            strike = contract.strike
-            difference = abs(strike - price)
+            if opt_contract.strike is None or math.isnan(opt_contract.strike):
+                continue
+
+            # Calculate the difference and find the closest strike
+            difference = abs(opt_contract.strike - price)
             if difference < min_difference:
                 min_difference = difference
-                closest_strike = strike
+                closest_strike = opt_contract.strike
 
         if closest_strike is not None:
-            print(f"Info: Closest strike for price {price} and right {right} is {closest_strike}")
+            print(f"Info: Closest strike for {right} is {closest_strike}")
             return closest_strike
         else:
-            print("Warning: No matching strike found with valid bid prices.")
+            print(f"Warning: No matching strike found for price {price}, right {right}.")
             return float('nan')
     except Exception as e:
         print(f"Error: Error fetching closest strike: {e}")
         return float('nan')
-
 
 def get_today_expiry():
     print(f"Entering function: get_today_expiry")

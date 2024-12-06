@@ -233,6 +233,7 @@ def submit_adaptive_order(order_contract, limit_price: float = None, order_type:
         The Trade object for the submitted order or None in case of an error.
     """
     try:
+        order_contract.exchange = 'SMART' # override for adaptive order type.
         print("---- Starting submit_adaptive_order ----")
         print(f"Contract Details: {order_contract}")
         print(f"Parameters -> Limit Price: {limit_price}, Order Type: {order_type}, Action: {action}, Is Live: {is_live}, Quantity: {quantity}")

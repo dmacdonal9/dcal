@@ -1,14 +1,17 @@
-myStrategyTag = 'MEIC'
+myStrategyTag = 'DC'
 
-ib_host='127.0.0.1'
-ib_port='7497'
-ib_clientid='1'
+symbol_list = ['SPX','NDX','RUT']
+symbol_list = ['SPX','NDX']
 
-stop_loss_mult = 1.5
+# IBKR Connection Parameters
+ib_host = '127.0.0.1'
+ib_port = 7500  # Port should be an integer
+ib_clientid = 1  # Client ID should also be an integer
 
+# Double Calendar Parameters for Instruments
 dc_param = {
-    'SPX':
-        {
+    'SPX': {
+        "conid": 416904,
         "quantity": 1,
         "min_tick": 0.1,
         "live_order": False,
@@ -16,27 +19,27 @@ dc_param = {
         "opt_exchange": 'CBOE',
         "sec_type": 'IND',
         "mult": '1',
-        "long_strike_distance": 2.5,
-        "short_strike_distance": 2.5,
-        "short_expiry_days": 5,
-        "long_expiry_days": 7,
-        },
-    'RUT':
-        {
+        "long_delta": 20,
+        "short_delta": 20,
+        "short_expiry_days": 5,       # Short leg expiration (in days)
+        "long_expiry_days": 7,       # Long leg expiration (in days)
+    },
+    'RUT': {
+        "conid": 416888,
         "quantity": 1,
         "min_tick": 0.1,
         "live_order": False,
-        "exchange": 'CBOE',
+        "exchange": 'RUSSELL',
         "opt_exchange": 'CBOE',
         "sec_type": 'IND',
         "mult": '1',
-        "short_put_strike_offset": 5,
-        "short_call_strike_offset": 5,
-        "long_put_target_price": 0.05,
-        "long_call_target_price": 0.05,
-        },
-    'NDX':
-        {
+        "long_delta": 20,
+        "short_delta": 20,
+        "short_expiry_days": 5,       # Short leg expiration (in days)
+        "long_expiry_days": 21,       # Long leg expiration (in days)
+    },
+    'NDX': {
+        "conid": 416843,
         "quantity": 1,
         "min_tick": 0.1,
         "live_order": False,
@@ -44,13 +47,37 @@ dc_param = {
         "opt_exchange": 'ISE',
         "sec_type": 'IND',
         "mult": '1',
-        "short_put_strike_offset": 10,
-        "short_call_strike_offset": 10,
-        "long_put_target_price": 0.2,
-        "long_call_target_price": 0.2,
-        }
+        "long_delta": 20,
+        "short_delta": 20,
+        "short_expiry_days": 5,       # Short leg expiration (in days)
+        "long_expiry_days": 7,       # Long leg expiration (in days)
+    },
+    'SPY': {
+        "conid": 756733,
+        "quantity": 1,
+        "min_tick": 0.01,
+        "live_order": False,
+        "exchange": 'SMART',
+        "opt_exchange": 'CBOE',
+        "sec_type": 'STK',
+        "mult": '1',
+        "long_delta": 20,
+        "short_delta": 20,
+        "short_expiry_days": 5,  # Short leg expiration (in days)
+        "long_expiry_days": 7,  # Long leg expiration (in days)
+    },
+    'QQQ': {
+        "conid": 320227571,
+        "quantity": 1,
+        "min_tick": 0.01,
+        "live_order": False,
+        "exchange": 'SMART',
+        "opt_exchange": 'CBOE',
+        "sec_type": 'STK',
+        "mult": '1',
+        "long_delta": 20,
+        "short_delta": 20,
+        "short_expiry_days": 5,  # Short leg expiration (in days)
+        "long_expiry_days": 7,  # Long leg expiration (in days)
     }
-# can't trade if less than this many minutes to close
-minutes_till_close_required = 120
-minutes_after_open_required = 2
-
+}
