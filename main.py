@@ -1,113 +1,63 @@
 import logging
 from dcal import submit_double_calendar
-from ib_insync import Contract
 from market_data import get_current_mid_price
+from qualify import qualify_contract
 import cfg
 from datetime import datetime, timedelta
-import pandas_market_calendars as mcal
-from ib_instance import ib
+from options import find_option_closest_to_delta, fetch_option_chain
+from ib_insync import Ticker
+import sys
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler()],
-)
-logger = logging.getLogger("DoubleCalendarMain")
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    handlers=[logging.StreamHandler()])
 
-# Define the CBOE market calendar
-cboe_calendar = mcal.get_calendar("CBOE_Index_Options")
+logger = logging.getLogger('DC')
+logging.getLogger('ib_insync').setLevel(logging.CRITICAL)
 
-def calculate_valid_expiry_date(days_from_today: int) -> str:
-    """
-    Calculate the next valid expiry date based on the number of days from today.
 
-    Args:
-        days_from_today: Number of days from today for the initial expiry.
+def calculate_expiry_date(days_from_today: int):
 
-    Returns:
-        Valid expiry date in 'YYYYMMDD' format.
-    """
-    target_date = datetime.now().date() + timedelta(days=days_from_today)
-
-    # Get valid trading days within the range
-    schedule = cboe_calendar.schedule(
-        start_date=target_date.strftime("%Y-%m-%d"),
-        end_date=(target_date + timedelta(days=30)).strftime("%Y-%m-%d"),
-    )
-    valid_dates = schedule.index.to_pydatetime()
-
-    # Find the next valid trading day
-    for valid_date in valid_dates:
-        if valid_date.date() >= target_date:
-            return valid_date.strftime("%Y%m%d")
-
-    raise ValueError("No valid expiry date found in the specified range.")
-
-def process_symbol(symbol: str):
-    """
-    Process a single symbol to calculate expiry dates, fetch market data,
-    and submit the double calendar trade.
-    """
-    logger.info(f"Processing symbol: {symbol}")
-
-    # Check if symbol configuration exists
-    params = cfg.dc_param.get(symbol)
-    if not params:
-        logger.error(f"Configuration for symbol {symbol} not found. Skipping.")
-        return
-
-    try:
-        # Calculate expiry dates
-        short_expiry = calculate_valid_expiry_date(params["short_expiry_days"])
-        long_expiry = calculate_valid_expiry_date(params["long_expiry_days"])
-
-        # Create contract object
-        contract = Contract(
-            conId=params["conid"],
-            exchange=params.get("exchange", ""),  # Default to empty string for auto-inference
-            currency="USD",
-            secType=params.get("secType", "IND"),  # Default to "IND"
-        )
-
-        # Fetch current mid-price
-        current_mid = get_current_mid_price(contract)
-        if not current_mid:
-            raise ValueError(f"Failed to retrieve market price for {symbol}")
-        logger.info(f"Current market price for {symbol}: {current_mid}")
-
-        # Request option chain
-        logger.info(f"Requesting option chain for {symbol} with conId={params['conid']}")
-        tickers = ib.reqSecDefOptParams(symbol, '', contract.secType, contract.conId)
-        print(tickers)
-        if not tickers:
-            logger.warning(f"No tickers returned for {symbol}. Skipping.")
-            return
-        logger.info(f"Received {len(tickers)} tickers for {symbol}")
-
-        # Submit the double calendar trade
-        submit_double_calendar(
-            ib=ib,
-            symbol=symbol,
-            short_delta=params["short_delta"],
-            long_delta=params["long_delta"],
-            short_expiry=short_expiry,
-            long_expiry=long_expiry,
-            tickers=tickers,
-            is_live=params["live_order"],
-        )
-        logger.info(f"Trade submitted successfully for {symbol}.")
-    except ValueError as e:
-        logger.error(f"Validation error for symbol {symbol}: {e}")
-    except Exception as e:
-        logger.exception(f"Unexpected error during trade submission for symbol {symbol}")
+    expiry_date = datetime.now() + timedelta(days=days_from_today)
+    return expiry_date.strftime('%Y%m%d')
 
 def main():
-    """
-    Main function to process trades for all symbols in the configuration.
-    """
-    for symbol in cfg.symbol_list:
-        process_symbol(symbol)
+
+    logger.info("Starting Double Calendar Trade Submission")
+    symbol=cfg.symbol
+    und_exchange='CBOE'
+    quantity=1
+
+    try:
+        # Qualify the underlying contract
+        und_contract = qualify_contract(
+            symbol=symbol,
+            secType='IND',
+            exchange='CBOE',
+            currency='USD'
+        )
+
+        # Fetch the current market mid-price
+        current_mid = get_current_mid_price(und_contract)
+        logger.info(f"Current market price for {symbol}: {current_mid}")
+
+        # Calculate expiry dates
+        short_expiry_date = calculate_expiry_date(cfg.short_expiry_days)
+        long_expiry_date = calculate_expiry_date(cfg.long_expiry_days)
+
+        short_tickers = fetch_option_chain(und_contract,short_expiry_date,current_mid)
+
+        call_strike = find_option_closest_to_delta(short_tickers,'C',cfg.target_call_delta).contract.strike
+        put_strike = find_option_closest_to_delta(short_tickers,'P',cfg.target_put_delta).contract.strike
+
+        #
+        trade = submit_double_calendar(
+            symbol=symbol,put_strike=put_strike,call_strike=call_strike,exchange=und_exchange,und_price=current_mid,
+            quantity=quantity,short_expiry_date=short_expiry_date,long_expiry_date=long_expiry_date,is_live=False)
+
+    except Exception as e:
+        logger.exception(f"Error during trade submission: {e}")
 
 if __name__ == "__main__":
     main()
