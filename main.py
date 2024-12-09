@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO,
                     handlers=[logging.StreamHandler()])
 
 logger = logging.getLogger('DC')
-logging.getLogger('ib_insync').setLevel(logging.CRITICAL)
+logging.getLogger('ib_insync').setLevel(logging.ERROR)
 
 
 def calculate_expiry_date(days_from_today: int):
