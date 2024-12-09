@@ -1,11 +1,10 @@
 import logging
-from dcal import submit_double_calendar
+from dcal import submit_double_calendar, close_dcal
 from market_data import get_current_mid_price
 from qualify import qualify_contract
 import cfg
 from datetime import datetime, timedelta
 from options import find_option_closest_to_delta, fetch_option_chain
-from ib_insync import Ticker
 import sys
 
 # Configure logging
@@ -55,6 +54,15 @@ def main():
             symbol=symbol,put_strike=put_strike,call_strike=call_strike,exchange=und_exchange,und_price=current_mid,
             quantity=cfg.quantity,short_expiry_date=short_expiry_date,long_expiry_date=long_expiry_date,is_live=True)
         print(trade)
+
+        # now setup the closing order
+        try:
+            # Define the parameters for closing the double calendar
+            # Call the close_dcal function
+            close_dcal(symbol, cfg.time_to_close)
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
     except Exception as e:
         logger.exception(f"Error during trade submission: {e}")

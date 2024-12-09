@@ -14,3 +14,5 @@ quantity = 1
 
 target_put_delta = 25
 target_call_delta = 15
+
+time_to_close = '09:35:00'  # The time to close the position (HH:MM:SS format)
