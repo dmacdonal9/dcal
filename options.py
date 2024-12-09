@@ -1,35 +1,11 @@
 from datetime import datetime
-from ib_insync import Contract, Option, FuturesOption
+from ib_insync import Contract, Option, Ticker
 from ib_instance import ib
 import math
 import logging
+import sys
 
 logging.getLogger('ib_insync').setLevel(logging.CRITICAL)
-
-def find_option_closest_to_delta(tickers, right, target_delta):
-    options = [option for option in tickers if option.contract.right == right and option.modelGreeks is not None]
-
-    print("find_option_closest_to_delta(): ", right, target_delta)
-    print("find_option_closest_to_delta(): Before filtering we have: ", len(options))
-
-    if not options:
-        print(f"find_option_closest_to_delta(): nothing found close to delta {target_delta}")
-        return None
-
-    # Filter for options with delta equal or greater than target_delta
-    filtered_options = [option for option in options if (abs(option.modelGreeks.delta) * 100)  <= target_delta]
-    print("find_option_closest_to_delta(): After delta filter we have count of: ", len(filtered_options))
-    # Get the option with maximum strike among the filtered options
-    closest_option = max(filtered_options, key=lambda x: x.contract.strike, default=None)
-    print(closest_option)
-
-    if closest_option:
-        print(
-            f"find_option_closest_to_delta(): closest option strike is {closest_option.contract.strike} with delta {closest_option.modelGreeks.delta}")
-    else:
-        print("No options with delta less than or equal to target_delta were found.")
-
-    return closest_option
 
 def get_closest_strike(contract, right, exchange, expiry, price):
     print(f"Entering function: get_closest_strike with parameters: {locals()}")
@@ -43,43 +19,38 @@ def get_closest_strike(contract, right, exchange, expiry, price):
         option_contract.lastTradeDateOrContractMonth = expiry
         option_contract.right = right  # 'C' for Call, 'P' for Put
 
-        # Fetch option chain details
         option_chain = ib.reqContractDetails(option_contract)
         if not option_chain:
-            print(f"Warning: No options found for symbol {contract.symbol}, expiry {expiry}, right {right}, exchange {exchange}.")
+            print("Warning: No options found for the specified parameters.")
             return float('nan')
 
-        # Log all available strikes
-        available_strikes = [detail.contract.strike for detail in option_chain if detail.contract.lastTradeDateOrContractMonth == expiry]
-        print(f"Info: Available strikes for {contract.symbol} on {exchange}, expiry {expiry}: {available_strikes}")
+        option_contracts = [detail.contract for detail in option_chain]
+        tickers = ib.reqTickers(*option_contracts)
 
-        # Find the closest strike
         closest_strike = None
         min_difference = float('inf')
 
-        for detail in option_chain:
-            opt_contract = detail.contract
-            if opt_contract.lastTradeDateOrContractMonth != expiry:
+        for contract, ticker in zip(option_contracts, tickers):
+            bid_price = ticker.bid
+            if bid_price is None or math.isnan(bid_price):
                 continue
 
-            if opt_contract.strike is None or math.isnan(opt_contract.strike):
-                continue
-
-            # Calculate the difference and find the closest strike
-            difference = abs(opt_contract.strike - price)
+            strike = contract.strike
+            difference = abs(strike - price)
             if difference < min_difference:
                 min_difference = difference
-                closest_strike = opt_contract.strike
+                closest_strike = strike
 
         if closest_strike is not None:
-            print(f"Info: Closest strike for {right} is {closest_strike}")
+            print(f"Info: Closest strike for price {price} and right {right} is {closest_strike}")
             return closest_strike
         else:
-            print(f"Warning: No matching strike found for price {price}, right {right}.")
+            print("Warning: No matching strike found with valid bid prices.")
             return float('nan')
     except Exception as e:
         print(f"Error: Error fetching closest strike: {e}")
         return float('nan')
+
 
 def get_today_expiry():
     print(f"Entering function: get_today_expiry")
@@ -201,3 +172,97 @@ def get_option_by_target_price(und_contract, right, opt_exchange, expiry, target
     print(f"Info: Option closest to target price found: {selected_option} with bid/ask price {selected_price}")
 
     return selected_option, selected_price
+
+
+def find_option_closest_to_delta(tickers, right, target_delta):
+    options = [option for option in tickers if option.contract.right == right and option.modelGreeks is not None]
+    print("find_option_closest_to_delta(): ", right, target_delta)
+
+    if not options:
+        print(f"find_option_closest_to_delta(): nothing found close to delta {target_delta}")
+        return None
+
+    # Select the option closest to the target delta (absolute difference, adjusted for puts)
+    closest_option = min(options, key=lambda x: abs(abs(x.modelGreeks.delta * 100) - target_delta), default=None)
+
+    if closest_option:
+        print(
+            f"find_option_closest_to_delta(): closest option strike is {closest_option.contract.strike} with delta {closest_option.modelGreeks.delta}")
+    else:
+        print("No options found close to the target delta.")
+
+    return closest_option
+
+
+def fetch_option_chain(my_contract, my_expiry: str, last_price: float) -> list[Ticker]:
+    chains = ib.reqSecDefOptParams(my_contract.symbol, '', my_contract.secType, my_contract.conId)
+
+    # Filter chain for the specific expiry
+    expiry_chain = next((chain for chain in chains if my_expiry in chain.expirations), None)
+
+    if not expiry_chain:
+        raise ValueError(f"Expiry {my_expiry} not found in chain.")
+
+    print(f"fetch_option_chain(): found expiry for {my_expiry}")
+
+    # Filter strikes based on last_price
+    relevant_put_strikes = [strike for strike in expiry_chain.strikes if strike < last_price]
+    relevant_call_strikes = [strike for strike in expiry_chain.strikes if strike > last_price]
+
+    option_contracts = []
+
+    # Process relevant put strikes
+    for strike in relevant_put_strikes:
+        put_option_contract = Option(
+            symbol=my_contract.symbol,
+            strike=strike,
+            lastTradeDateOrContractMonth=my_expiry,
+            right='P',
+            currency='USD',
+            exchange=my_contract.exchange
+        )
+        option_contracts.append(put_option_contract)
+
+    # Process relevant call strikes
+    for strike in relevant_call_strikes:
+        call_option_contract = Option(
+            symbol=my_contract.symbol,
+            strike=strike,
+            lastTradeDateOrContractMonth=my_expiry,
+            right='C',
+            currency='USD',
+            exchange=my_contract.exchange
+        )
+        option_contracts.append(call_option_contract)
+
+    # Qualify contracts with error handling
+    try:
+        qualified_contracts = ib.qualifyContracts(*option_contracts)
+    except Exception as e:
+        if 'error code 200' in str(e).lower():
+            print(f"Error 200 encountered while qualifying contracts: {str(e)}. Discarding invalid contracts.")
+            qualified_contracts = []  # Fallback to an empty list if necessary
+        else:
+            raise  # Reraise other exceptions
+
+    if not qualified_contracts:
+        print("No valid contracts qualified.")
+        return []
+
+    # Fetch tickers with retries
+    for attempt in range(3):  # Allow 3 attempts
+        try:
+            tickers = ib.reqTickers(*qualified_contracts)
+            if all(ticker.modelGreeks is None for ticker in tickers):
+                raise Exception("All modelGreeks are None")
+            break  # Exit loop if no exception occurs
+        except Exception as e:
+            if attempt < 2:  # Retry for the first two attempts
+                print(f"fetch_option_chain(): problem getting tickers, retrying...")
+                ib.sleep(2)
+            else:  # On final failure
+                print(f"Error: Unable to obtain modelGreeks for all tickers after three attempts: {str(e)}")
+                tickers = []  # Return an empty list if retries fail
+                break
+
+    return tickers
