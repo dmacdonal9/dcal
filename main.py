@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO,
                     handlers=[logging.StreamHandler()])
 
 logger = logging.getLogger('DC')
-logging.getLogger('ib_insync').setLevel(logging.ERROR)
+logging.getLogger('ib_insync').setLevel(logging.CRITICAL)
 
 
 def calculate_expiry_date(days_from_today: int):
@@ -53,7 +53,7 @@ def main():
         #
         trade = submit_double_calendar(
             symbol=symbol,put_strike=put_strike,call_strike=call_strike,exchange=und_exchange,und_price=current_mid,
-            quantity=cfg.quantity,short_expiry_date=short_expiry_date,long_expiry_date=long_expiry_date,is_live=False)
+            quantity=cfg.quantity,short_expiry_date=short_expiry_date,long_expiry_date=long_expiry_date,is_live=True)
         print(trade)
 
     except Exception as e:
