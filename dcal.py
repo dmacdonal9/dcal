@@ -1,5 +1,13 @@
 import logging
-from options import find_option_closest_to_delta
+from market_data import get_current_mid_price
+from options import get_closest_strike
+from qualify import qualify_contract
+from orders import submit_adaptive_order, create_bag
+import cfg
+
+# Constants
+PUT = 'P'
+CALL = 'C'
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
@@ -7,91 +15,67 @@ logging.basicConfig(level=logging.INFO,
                     handlers=[logging.StreamHandler()])
 
 logger = logging.getLogger('DoubleCalendar')
+logging.getLogger('ib_insync').setLevel(logging.ERROR)
 
-
-def submit_double_calendar(ib, symbol, short_delta, long_delta, short_expiry, long_expiry, tickers, is_live):
+def submit_double_calendar(symbol: str, put_strike: float, call_strike: float, exchange,
+                           und_price: float, quantity: int,
+                           short_expiry_date: str, long_expiry_date: str, is_live: bool = False):
     """
-    Submit a double calendar spread order for a given symbol.
+    Submits an order for a Double Calendar Spread.
 
     Args:
-        ib: The IB connection object.
-        symbol: The underlying symbol for the options.
-        short_delta: Target delta for the short options.
-        long_delta: Target delta for the long options.
-        short_expiry: Expiry date for the short options (in 'YYYYMMDD' format).
-        long_expiry: Expiry date for the long options (in 'YYYYMMDD' format).
-        tickers: List of option tickers retrieved from IBKR.
-        is_live: Whether the order should be submitted as a live order.
+        symbol: The underlying symbol to trade.
+        long_strike_distance: Distance from the underlying price for the long strike.
+        short_strike_distance: Distance for the short strike.
+        short_expiry_days: Days to expiry for the short legs.
+        long_expiry_days: Days to expiry for the long legs.
+        is_live: Whether to place a live order or a paper trade.
 
     Returns:
-        The trade order object if successful, None otherwise.
+        A Trade object for the submitted order, or None if the order submission fails.
     """
     try:
-        logger.info(f"Finding options for {symbol} with deltas {short_delta} (short) and {long_delta} (long)")
 
-        # Extract tickers with matching expiry dates
-        def filter_by_expiry(tickers, target_expiry):
-            logger.info(f"Filtering tickers for expiry {target_expiry}")
-            filtered_tickers = [
-                t for t in tickers if hasattr(t, "contract") and
-                                      t.contract.lastTradeDateOrContractMonth.replace("-", "") == target_expiry
-            ]
-            if not filtered_tickers:
-                logger.warning(f"No tickers matched expiry {target_expiry}. Available expiries: "
-                               f"{set(t.contract.lastTradeDateOrContractMonth for t in tickers if hasattr(t, 'contract'))}")
-            return filtered_tickers
+        # Qualify the underlying contract
+        und_contract = qualify_contract(
+            symbol=symbol,
+            secType='IND',
+            exchange=exchange,
+            currency='USD'
+        )
 
-        short_tickers = filter_by_expiry(tickers, short_expiry)
-        long_tickers = filter_by_expiry(tickers, long_expiry)
+        # Qualify contracts for each leg
+        legs = [
+            qualify_contract(symbol=symbol, secType='OPT', exchange=exchange, right=CALL, strike=call_strike, lastTradeDateOrContractMonth=long_expiry_date),
+            qualify_contract(symbol=symbol, secType='OPT', exchange=exchange, right=CALL, strike=call_strike, lastTradeDateOrContractMonth=short_expiry_date),
+            qualify_contract(symbol=symbol, secType='OPT', exchange=exchange, right=PUT, strike=put_strike, lastTradeDateOrContractMonth=long_expiry_date),
+            qualify_contract(symbol=symbol, secType='OPT', exchange=exchange, right=PUT, strike=put_strike, lastTradeDateOrContractMonth=short_expiry_date),
+        ]
 
-        if not short_tickers:
-            logger.error(f"No tickers found for short expiry {short_expiry} for {symbol}")
+        # Define actions and ratios for the legs
+        leg_actions = ['BUY', 'SELL', 'BUY', 'SELL']
+        ratios = [quantity] * 4
+
+        # Create the combo bag contract
+        bag_contract = create_bag(und_contract, legs, leg_actions, ratios)
+        bag_contract.exchange = 'SMART'
+
+        # Submit an adaptive market order for the combo
+        trade = submit_adaptive_order(
+            order_contract=bag_contract,
+            order_type='MKT',
+            action='BUY',
+            is_live=is_live,
+            quantity=quantity
+        )
+
+        if not trade:
+            logger.error("Failed to submit Double Calendar order.")
             return None
-        if not long_tickers:
-            logger.error(f"No tickers found for long expiry {long_expiry} for {symbol}")
-            return None
 
-        # Find the short call and put options
-        call_short = find_option_closest_to_delta(short_tickers, "C", short_delta)
-        put_short = find_option_closest_to_delta(short_tickers, "P", short_delta)
-
-        # Find the long call and put options
-        call_long = find_option_closest_to_delta(long_tickers, "C", long_delta)
-        put_long = find_option_closest_to_delta(long_tickers, "P", long_delta)
-
-        logger.info(f"Short call: {call_short.contract}")
-        logger.info(f"Short put: {put_short.contract}")
-        logger.info(f"Long call: {call_long.contract}")
-        logger.info(f"Long put: {put_long.contract}")
-
-        # Construct the combo orders for the calendar spreads
-        short_call_order = ib.createOrder("SELL", "LMT", 1, limitPrice=call_short.marketPrice())
-        long_call_order = ib.createOrder("BUY", "LMT", 1, limitPrice=call_long.marketPrice())
-        short_put_order = ib.createOrder("SELL", "LMT", 1, limitPrice=put_short.marketPrice())
-        long_put_order = ib.createOrder("BUY", "LMT", 1, limitPrice=put_long.marketPrice())
-
-        # Submit the orders for the double calendar spread
-        if is_live:
-            ib.placeOrder(call_short.contract, short_call_order)
-            ib.placeOrder(call_long.contract, long_call_order)
-            ib.placeOrder(put_short.contract, short_put_order)
-            ib.placeOrder(put_long.contract, long_put_order)
-
-            logger.info(f"Double Calendar Spread orders submitted successfully for {symbol}")
-        else:
-            logger.info(f"Simulated orders (not live):\n"
-                        f"Short Call: {short_call_order}\n"
-                        f"Long Call: {long_call_order}\n"
-                        f"Short Put: {short_put_order}\n"
-                        f"Long Put: {long_put_order}")
-
-        return {
-            "short_call": short_call_order,
-            "long_call": long_call_order,
-            "short_put": short_put_order,
-            "long_put": long_put_order,
-        }
+        logger.info(f"Double Calendar Spread submitted successfully. Order ID: {trade.order.orderId}")
+        return trade
 
     except Exception as e:
-        logger.exception(f"Error submitting Double Calendar Spread order for {symbol}: {e}")
+        logger.exception(f"Error submitting Double Calendar Spread order: {e}")
         return None
