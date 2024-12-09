@@ -27,7 +27,6 @@ def main():
     logger.info("Starting Double Calendar Trade Submission")
     symbol=cfg.symbol
     und_exchange='CBOE'
-    quantity=1
 
     try:
         # Qualify the underlying contract
@@ -54,7 +53,8 @@ def main():
         #
         trade = submit_double_calendar(
             symbol=symbol,put_strike=put_strike,call_strike=call_strike,exchange=und_exchange,und_price=current_mid,
-            quantity=quantity,short_expiry_date=short_expiry_date,long_expiry_date=long_expiry_date,is_live=False)
+            quantity=cfg.quantity,short_expiry_date=short_expiry_date,long_expiry_date=long_expiry_date,is_live=False)
+        print(trade)
 
     except Exception as e:
         logger.exception(f"Error during trade submission: {e}")
