@@ -39,11 +39,8 @@ def main():
         )
 
         # Fetch the current market mid-price
-        #current_mid = get_current_mid_price(und_contract)
-        current_mid = 6088
-
+        current_mid = get_current_mid_price(und_contract)
         logger.info(f"Current market price for {symbol}: {current_mid}")
-
 
         # Calculate expiry dates
         short_expiry_date = calculate_expiry_date(cfg.short_expiry_days)
