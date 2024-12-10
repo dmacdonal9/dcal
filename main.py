@@ -22,7 +22,7 @@ def calculate_expiry_date(days_from_today: int):
     expiry_date = datetime.now() + timedelta(days=days_from_today)
     return expiry_date.strftime('%Y%m%d')
 
-def open_dcal(symbol:str):
+def open_dcal(symbol:str, is_live:bool):
     logger.info("Starting Double Calendar Trade Submission")
     und_exchange=cfg.exchange
 
@@ -51,7 +51,7 @@ def open_dcal(symbol:str):
         #
         trade = submit_double_calendar(
             symbol=symbol,put_strike=put_strike,call_strike=call_strike,exchange=und_exchange,und_price=current_mid,
-            quantity=cfg.quantity,short_expiry_date=short_expiry_date,long_expiry_date=long_expiry_date,is_live=True)
+            quantity=cfg.quantity,short_expiry_date=short_expiry_date,long_expiry_date=long_expiry_date,is_live=is_live)
         print(trade)
 
         # now setup the closing order
@@ -86,6 +86,11 @@ def main():
         action='store_true',
         help="Close a double calendar (DCAL) position."
     )
+    parser.add_argument(
+        '-l', '--live',
+        action='store_true',
+        help="Use live orders?"
+    )
 
     # Parse the arguments
     args = parser.parse_args()
@@ -95,7 +100,7 @@ def main():
         print("Error: Cannot specify both -o and -c. Choose one.", file=sys.stderr)
         sys.exit(1)
     elif args.open:
-        open_dcal(symbol)
+        open_dcal(symbol,args.live)
         show_recently_filled_spreads('today',cfg.myStrategyTag)
     elif args.close:
         closing_date_time = datetime.now().strftime('%Y%m%d') + ' ' + cfg.time_to_close  # Full closing time
