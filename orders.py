@@ -1,15 +1,95 @@
 from ib_insync import LimitOrder, ComboLeg, Contract, Order, TagValue, PriceCondition, Trade
 from ib_instance import ib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 import cfg
 from math import isnan
+import pytz
 
 # Define the minimum tick sizes for various symbols
 minTick: dict[str, float] = {
     "ES": 0.05,
     "SPX": 0.1
 }
+
+def show_recently_filled_spreads(timeframe='today', strategy=''):
+    """
+    Retrieve recently filled orders and display spread details, using the combo summary for the net fill price.
+    """
+    #print(f"Entering function: get_recently_filled_spreads with parameters: {locals()}")
+
+    if not ib:
+        print(f"Error: No IB instance connected.")
+        return []
+
+    try:
+        # Retrieve execution details
+        executions = ib.reqExecutions()
+        #print(f"Number of executions retrieved: {len(executions)}")
+
+        # Get the start and end time for filtering
+        current_utc_time = datetime.now(timezone.utc)
+
+        if timeframe == 'today':
+            start_time = current_utc_time.replace(hour=0, minute=0, second=0, microsecond=0)
+        elif timeframe == 'yesterday':
+            start_time = (current_utc_time - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+        else:
+            try:
+                start_time = datetime.strptime(timeframe, '%Y-%m-%d').replace(tzinfo=timezone.utc)
+            except ValueError:
+                print("Error: Invalid date format. Use 'today', 'yesterday', or 'YYYY-MM-DD'.")
+                return []
+
+        end_time = start_time + timedelta(days=1)
+
+        # Filter executions by timestamp and strategy
+        filtered_executions = [
+            fill for fill in executions
+            if start_time <= fill.execution.time < end_time and fill.execution.orderRef == strategy
+        ]
+
+        # Group executions by orderId
+        executions_by_order = {}
+        for fill in filtered_executions:
+            order_id = fill.execution.orderId
+            if order_id not in executions_by_order:
+                executions_by_order[order_id] = []
+            executions_by_order[order_id].append(fill)
+
+        # Analyze spreads
+        for order_id, fills in executions_by_order.items():
+            #print(f"Order ID: {order_id}, Number of Fills: {len(fills)}")
+
+            # Separate combo summary and individual legs
+            combo_summary = next(
+                (fill for fill in fills if getattr(fill.contract, 'strike', 0) == 0), None
+            )
+            legs = [
+                {
+                    "symbol": fill.contract.symbol,
+                    "strike": getattr(fill.contract, 'strike', None),
+                    "type": getattr(fill.contract, 'right', None),
+                    "side": fill.execution.side,
+                    "price": fill.execution.price,
+                }
+                for fill in fills if getattr(fill.contract, 'strike', 0) != 0
+            ]
+
+            if combo_summary:
+                net_fill_price = combo_summary.execution.price
+                print(f"  Spread: {combo_summary.contract.symbol} Net Fill Price: {net_fill_price:.2f}")
+            else:
+                print(f"  Spread: {legs[0]['symbol']} (Combo Summary Missing)")
+
+            # Display individual legs
+            for leg in legs:
+                print(f"    {leg['symbol']} {leg['side']} {leg['type']} {leg['strike']} at {leg['price']}")
+
+        return executions_by_order
+    except Exception as e:
+        print(f"Error: Failed to retrieve filled orders: {e}")
+        return []
 
 def create_bag(und_contract: Contract, legs: list, actions: list, ratios: list) -> Contract:
     print(f"Creating combo bag with parameters: {locals()}")

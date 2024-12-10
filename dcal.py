@@ -5,7 +5,6 @@ from qualify import qualify_contract
 from orders import submit_adaptive_order, create_bag
 import cfg
 from ib_insync import *
-from datetime import datetime, timedelta
 from ib_instance import ib
 
 # Constants
@@ -18,7 +17,7 @@ logging.basicConfig(level=logging.INFO,
                     handlers=[logging.StreamHandler()])
 
 logger = logging.getLogger('DoubleCalendar')
-logging.getLogger('ib_insync').setLevel(logging.ERROR)
+logging.getLogger('ib_insync').setLevel(logging.WARN)
 
 def submit_double_calendar(symbol: str, put_strike: float, call_strike: float, exchange,
                            und_price: float, quantity: int,
@@ -84,41 +83,45 @@ def submit_double_calendar(symbol: str, put_strike: float, call_strike: float, e
         return None
 
 
-def close_dcal(symbol, time):
+def close_dcal(symbol, closing_date_time):
     """
     Close a double calendar (DCAL) position for a given symbol with an adaptive market order
     at a specified time (e.g., 9:35 AM next trading day).
 
     Args:
         symbol (str): The symbol of the instrument to close (e.g., 'SPX').
-        time (str): The time to close the position (e.g., '09:35:00' in HH:MM:SS format).
+        closing_date_time (str): The time to close the position (e.g., '20241210 08:30:00' in YYYYMMDD HH:MM:SS format).
     """
-
-    # Determine the closing date (Monday if Friday, else tomorrow)
-    today = datetime.now()
-    if today.weekday() == 4:  # Friday
-        closing_date = today + timedelta(days=3)  # Skip to Monday
-    else:
-        closing_date = today + timedelta(days=1)  # Next day
-
-    closing_time = closing_date.strftime('%Y%m%d') + ' ' + time  # Full closing time
 
     # Fetch open positions and filter legs matching the symbol
     positions = ib.positions()
     legs = []
+
     for pos in positions:
         if pos.contract.symbol == symbol:
+            details = ib.reqContractDetails(pos.contract)
+            print(details)
+
+    for pos in positions:
+        if pos.contract.symbol == symbol and pos.position != 0:
+            # Ensure legs are fully qualified
+            ib.qualifyContracts(pos.contract)
             legs.append(
                 ComboLeg(
                     conId=pos.contract.conId,
                     ratio=abs(int(pos.position)),  # Convert position to integer ratio
-                    action='SELL' if pos.position > 0 else 'BUY',  # Reverse action to close
-                    exchange=pos.contract.exchange
+                    action='SELL' if pos.position < 0 else 'BUY',  # Reverse action to close
+                    exchange=pos.contract.exchange,
+                    openClose=1
                 )
             )
 
     if not legs:
         raise ValueError(f"No open position legs found for symbol: {symbol}")
+
+    for leg in legs:
+        print(
+            f"Leg details: conId={leg.conId}, action={leg.action}, ratio={leg.ratio}, exchange={leg.exchange}, openClose={leg.openClose}")
 
     # Create the BAG combo contract
     combo_contract = Contract(
@@ -129,9 +132,13 @@ def close_dcal(symbol, time):
         comboLegs=legs
     )
 
+    # validate BAG
+    #contract_details = ib.reqContractDetails(combo_contract)
+    #print(contract_details)
+
     # Create the adaptive market order
     close_order = Order(
-        action='BUY',  # Adaptive market order to close the position
+        action='SELL',  # Adaptive market order to close the position
         orderType='MKT',
         totalQuantity=1,  # Quantity for combo orders is typically 1 (not per leg)
         algoStrategy='Adaptive',
@@ -143,14 +150,17 @@ def close_dcal(symbol, time):
     # Attach a time condition
     time_condition = TimeCondition(
         isMore=True,  # Order activates after the specified time
-        time=closing_time  # Time in 'YYYYMMDD HH:MM:SS' format
+        time=closing_date_time  # Time in 'YYYYMMDD HH:MM:SS' format
     )
     close_order.conditions.append(time_condition)
     close_order.conditionsIgnoreRth = False  # Respect regular trading hours
 
-    # Qualify and submit the order
-    ib.qualifyContracts(combo_contract)
-    trade = ib.placeOrder(combo_contract, close_order)
+    print(f"Combo Contract: {combo_contract}")
+    print(f"Close Order: {close_order}")
 
-    print(f"Submitted close order for {symbol} with time condition: {closing_time}")
+    # Submit the order
+    trade = ib.placeOrder(combo_contract, close_order)
+    ib.sleep(2)
+
+    print(f"Submitted close order for {symbol} with time condition: {closing_date_time}")
     print(trade.orderStatus)
