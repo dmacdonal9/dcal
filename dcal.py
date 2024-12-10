@@ -138,6 +138,7 @@ def close_dcal(symbol, closing_date_time):
 
     # Create the adaptive market order
     close_order = Order(
+        orderRef=cfg.myStrategyTag,
         action='SELL',  # Adaptive market order to close the position
         orderType='MKT',
         totalQuantity=1,  # Quantity for combo orders is typically 1 (not per leg)

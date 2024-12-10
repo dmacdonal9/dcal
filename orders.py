@@ -16,7 +16,7 @@ def show_recently_filled_spreads(timeframe='today', strategy=''):
     """
     Retrieve recently filled orders and display spread details, using the combo summary for the net fill price.
     """
-    #print(f"Entering function: get_recently_filled_spreads with parameters: {locals()}")
+    print(f"Entering function: get_recently_filled_spreads with parameters: {locals()}")
 
     if not ib:
         print(f"Error: No IB instance connected.")
@@ -25,7 +25,7 @@ def show_recently_filled_spreads(timeframe='today', strategy=''):
     try:
         # Retrieve execution details
         executions = ib.reqExecutions()
-        #print(f"Number of executions retrieved: {len(executions)}")
+        print(f"Number of executions retrieved: {len(executions)}")
 
         # Get the start and end time for filtering
         current_utc_time = datetime.now(timezone.utc)
@@ -46,12 +46,13 @@ def show_recently_filled_spreads(timeframe='today', strategy=''):
         # Filter executions by timestamp and strategy
         filtered_executions = [
             fill for fill in executions
-            if start_time <= fill.execution.time < end_time and fill.execution.orderRef == strategy
+            if start_time <= fill.execution.time < end_time# and fill.execution.orderRef == strategy
         ]
 
         # Group executions by orderId
         executions_by_order = {}
         for fill in filtered_executions:
+            print(fill.execution.orderRef)
             order_id = fill.execution.orderId
             if order_id not in executions_by_order:
                 executions_by_order[order_id] = []
@@ -330,7 +331,8 @@ def submit_adaptive_order(order_contract, limit_price: float = None, order_type:
             lmtPrice=limit_price if limit_price is not None else None,
             algoStrategy='Adaptive',
             algoParams=algo_params,
-            transmit=is_live
+            transmit=is_live,
+            orderRef=cfg.myStrategyTag
         )
         print(f"Order created: {order}")
 
