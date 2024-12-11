@@ -14,4 +14,4 @@ ib_clientid = 1  # Client ID should also be an integer
 short_expiry_days = 1
 long_expiry_days = 7
 
-time_to_close = '09:35:00'  # The time to close the position (HH:MM:SS format) in EST
+time_to_close = '09:34:00'  # The time to close the position (HH:MM:SS format) in EST

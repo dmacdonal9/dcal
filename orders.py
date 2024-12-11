@@ -9,14 +9,14 @@ import pytz
 # Define the minimum tick sizes for various symbols
 minTick: dict[str, float] = {
     "ES": 0.05,
-    "SPX": 0.1
+    "SPX": 0.05
 }
 
 def show_recently_filled_spreads(timeframe='today', strategy=''):
     """
     Retrieve recently filled orders and display spread details, using the combo summary for the net fill price.
     """
-    print(f"Entering function: get_recently_filled_spreads with parameters: {locals()}")
+    #print(f"Entering function: get_recently_filled_spreads with parameters: {locals()}")
 
     if not ib:
         print(f"Error: No IB instance connected.")
@@ -52,7 +52,7 @@ def show_recently_filled_spreads(timeframe='today', strategy=''):
         # Group executions by orderId
         executions_by_order = {}
         for fill in filtered_executions:
-            print(fill.execution.orderRef)
+            #print(fill.execution.orderRef)
             order_id = fill.execution.orderId
             if order_id not in executions_by_order:
                 executions_by_order[order_id] = []

@@ -105,6 +105,7 @@ def main():
     elif args.close:
         closing_date_time = datetime.now().strftime('%Y%m%d') + ' ' + cfg.time_to_close  # Full closing time
         close_dcal(symbol,closing_date_time)
+        show_recently_filled_spreads('today',cfg.myStrategyTag)
     else:
         print("Error: No action specified. Use -o to open or -c to close.", file=sys.stderr)
         sys.exit(1)
