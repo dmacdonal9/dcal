@@ -82,6 +82,7 @@ def main():
 
     # Parse the arguments
     args = parser.parse_args()
+    connect_to_ib(args.test)
 
     # Handle the arguments
     if args.open and args.close:
@@ -93,7 +94,7 @@ def main():
     elif args.close:
         closing_date_time = datetime.now().strftime('%Y%m%d') + ' ' + cfg.time_to_close  # Full closing time
         close_dcal(symbol, closing_date_time)
-        show_recently_filled_spreads('today', cfg.myStrategyTag)
+        show_recently_filled_spreads(timeframe='today', strategy=cfg.myStrategyTag)
     else:
         print("Error: No action specified. Use -o to open or -c to close.", file=sys.stderr)
         sys.exit(1)

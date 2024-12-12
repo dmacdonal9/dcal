@@ -1,6 +1,5 @@
 import logging
-from market_data import get_current_mid_price
-from options import get_closest_strike
+
 from qualify import qualify_contract
 from orders import submit_adaptive_order, create_bag
 import cfg
@@ -92,9 +91,10 @@ def close_dcal(symbol, closing_date_time):
         symbol (str): The symbol of the instrument to close (e.g., 'SPX').
         closing_date_time (str): The time to close the position (e.g., '20241210 08:30:00' in YYYYMMDD HH:MM:SS format).
     """
-
+    print(f"close_dcal(): ",symbol,closing_date_time)
     # Fetch open positions and filter legs matching the symbol
     positions = ib.positions()
+    print(positions)
     legs = []
 
     for pos in positions:
