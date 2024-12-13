@@ -18,9 +18,17 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger('DC')
 logging.getLogger('ib_insync').setLevel(logging.CRITICAL)
 
-
-def calculate_expiry_date(days_from_today: int):
+def calculate_expiry_date(days_from_today: int) -> str:
+    # Calculate the initial expiry date
     expiry_date = datetime.now() + timedelta(days=days_from_today)
+
+    # Check if the expiry date falls on a weekend (Saturday or Sunday)
+    if expiry_date.weekday() == 5:  # Saturday
+        expiry_date += timedelta(days=2)  # Move to Monday
+    elif expiry_date.weekday() == 6:  # Sunday
+        expiry_date += timedelta(days=1)  # Move to Monday
+
+    # Return the expiry date in the desired format
     return expiry_date.strftime('%Y%m%d')
 
 
@@ -29,7 +37,7 @@ def open_dcal(symbol: str, is_live: bool, is_test: bool):
     und_exchange = cfg.exchange
 
     # Connect to the appropriate IBKR instance
-    ib = connect_to_ib(is_test=is_test)
+    connect_to_ib(is_test=is_test)
 
     try:
         # Qualify the underlying contract
