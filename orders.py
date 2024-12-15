@@ -1,33 +1,38 @@
-from ib_insync import LimitOrder, ComboLeg, Contract, Order, TagValue, PriceCondition, Trade
+from ib_insync import LimitOrder, Order, TagValue, ComboLeg, Contract
 from ib_instance import ib
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 import cfg
-from math import isnan
-import pytz
+import mintick
 
-# Define the minimum tick sizes for various symbols
-minTick: dict[str, float] = {
-    "ES": 0.05,
-    "SPX": 0.05
-}
+def get_min_tick(symbol: str, price: float) -> Optional[float]:
+    """
+    Retrieve the minimum tick size for a given symbol and price from mintick.py.
+
+    Args:
+        symbol: The symbol of the instrument (e.g., 'ES', 'SPX').
+        price: The price of the instrument.
+
+    Returns:
+        The minimum tick size for the given symbol and price, or None if not found.
+    """
+    thresholds = mintick.min_tick_data.get(symbol, {}).get("thresholds", [])
+    for threshold in thresholds:
+        if price <= threshold["max_price"]:
+            return threshold["tick_size"]
+    return None
+
 
 def show_recently_filled_spreads(timeframe='today', strategy=''):
     """
     Retrieve recently filled orders and display spread details, using the combo summary for the net fill price.
     """
-    #print(f"Entering function: get_recently_filled_spreads with parameters: {locals()}")
-
     if not ib:
         print(f"Error: No IB instance connected.")
         return []
 
     try:
-        # Retrieve execution details
         executions = ib.reqExecutions()
-        print(f"Number of executions retrieved: {len(executions)}")
-
-        # Get the start and end time for filtering
         current_utc_time = datetime.now(timezone.utc)
 
         if timeframe == 'today':
@@ -43,26 +48,17 @@ def show_recently_filled_spreads(timeframe='today', strategy=''):
 
         end_time = start_time + timedelta(days=1)
 
-        # Filter executions by timestamp and strategy
+        # Filter executions by timestamp
         filtered_executions = [
-            fill for fill in executions
-            if start_time <= fill.execution.time < end_time# and fill.execution.orderRef == strategy
+            fill for fill in executions if start_time <= fill.execution.time < end_time
         ]
 
-        # Group executions by orderId
         executions_by_order = {}
         for fill in filtered_executions:
-            #print(fill.execution.orderRef)
             order_id = fill.execution.orderId
-            if order_id not in executions_by_order:
-                executions_by_order[order_id] = []
-            executions_by_order[order_id].append(fill)
+            executions_by_order.setdefault(order_id, []).append(fill)
 
-        # Analyze spreads
         for order_id, fills in executions_by_order.items():
-            #print(f"Order ID: {order_id}, Number of Fills: {len(fills)}")
-
-            # Separate combo summary and individual legs
             combo_summary = next(
                 (fill for fill in fills if getattr(fill.contract, 'strike', 0) == 0), None
             )
@@ -83,7 +79,6 @@ def show_recently_filled_spreads(timeframe='today', strategy=''):
             else:
                 print(f"  Spread: {legs[0]['symbol']} (Combo Summary Missing)")
 
-            # Display individual legs
             for leg in legs:
                 print(f"    {leg['symbol']} {leg['side']} {leg['type']} {leg['strike']} at {leg['price']}")
 
@@ -92,30 +87,31 @@ def show_recently_filled_spreads(timeframe='today', strategy=''):
         print(f"Error: Failed to retrieve filled orders: {e}")
         return []
 
-def create_bag(und_contract: Contract, legs: list, actions: list, ratios: list) -> Contract:
-    print(f"Creating combo bag with parameters: {locals()}")
-    bag_contract = Contract()
-    bag_contract.symbol = und_contract.symbol
-    bag_contract.secType = 'BAG'
-    bag_contract.currency = und_contract.currency
-    bag_contract.exchange = und_contract.exchange
-    bag_contract.comboLegs = []
-
-    for leg, action, ratio in zip(legs, actions, ratios):
-        combo_leg = ComboLeg()
-        combo_leg.conId = leg.conId
-        combo_leg.action = action
-        combo_leg.ratio = ratio
-        combo_leg.exchange = leg.exchange
-        combo_leg.openClose = 0
-        bag_contract.comboLegs.append(combo_leg)
-
-    return bag_contract
 
 def submit_limit_order(order_contract, limit_price: float, action: str, is_live: bool, quantity: int):
-    print(f"Entering function: submit_limit_order with parameters: {locals()}")
+    """
+    Submits a limit order for the given contract and dynamically adjusts the price based on the minimum tick size.
+
+    Args:
+        order_contract: The contract for which the order is being placed.
+        limit_price: The limit price for the order.
+        action: 'BUY' or 'SELL'.
+        is_live: Whether to transmit the order.
+        quantity: Number of contracts.
+
+    Returns:
+        The status of the order submission.
+    """
+    # Adjust the limit price to align with the minimum tick size
+    min_tick = get_min_tick(order_contract.symbol, limit_price)
+    if not min_tick:
+        print(f"Warning: No tick size found for symbol {order_contract.symbol} at price {limit_price}. Using original price.")
+    else:
+        # Round limit price to the nearest valid tick
+        limit_price = round(limit_price / min_tick) * min_tick
+        print(f"Adjusted limit price for {order_contract.symbol}: {limit_price} (Min Tick: {min_tick})")
+
     order = LimitOrder(action=action, lmtPrice=limit_price, transmit=is_live, totalQuantity=quantity)
-    print(f"Submitting order for {order_contract.symbol} at limit price {limit_price}.")
     order.orderRef = cfg.myStrategyTag
 
     try:
@@ -123,180 +119,11 @@ def submit_limit_order(order_contract, limit_price: float, action: str, is_live:
         ib.sleep(2)
 
         if trade.orderStatus.status in ('Submitted', 'PendingSubmit', 'PreSubmitted', 'Filled'):
-            status = f"Order sent with status: {trade.orderStatus.status}"
+            return f"Order sent with status: {trade.orderStatus.status}"
         else:
-            status = f"Order failed with status: {trade.orderStatus.status}"
-        return status
+            return f"Order failed with status: {trade.orderStatus.status}"
     except Exception as e:
-        error_message = f"Error: Order placement failed with error: {str(e)}"
-        print(error_message)
-        return error_message
-
-def create_bag(und_contract: Contract, legs: list, actions: list, ratios: list) -> Contract:
-    print(f"Entering function: create_bag with parameters: {locals()}")
-    bag_contract = Contract()
-    bag_contract.symbol = und_contract.symbol
-    bag_contract.secType = 'BAG'
-    bag_contract.currency = und_contract.currency
-    bag_contract.exchange = und_contract.exchange
-    bag_contract.comboLegs = []
-
-    for leg, action, ratio in zip(legs, actions, ratios):
-        combo_leg = ComboLeg()
-        combo_leg.conId = leg.conId
-        combo_leg.action = action
-        combo_leg.ratio = ratio
-        combo_leg.exchange = leg.exchange
-        combo_leg.openClose = 0
-        bag_contract.comboLegs.append(combo_leg)
-
-    return bag_contract
-
-def get_active_orders():
-    print(f"Entering function: get_active_orders with parameters: {locals()}")
-    try:
-        print("Requesting active orders from IB account...")
-        active_orders = ib.reqAllOpenOrders()
-        print(f"Number of active orders retrieved: {len(active_orders)}")
-
-        for order in active_orders:
-            print(f"Active Order - ID: {order.orderId}, Symbol: {order.contract.symbol}, "
-                  f"Type: {order.orderType}, Quantity: {order.totalQuantity}, "
-                  f"Status: {order.status}")
-
-        return active_orders
-
-    except Exception as e:
-        print(f"Error: Failed to retrieve active orders: {e}")
-        return []
-
-def get_recently_filled_orders(timeframe='today'):
-    print(f"Entering function: get_recently_filled_orders with parameters: {locals()}")
-    try:
-        print(f"Requesting filled orders for timeframe: {timeframe}.")
-        all_trades = ib.reqExecutions()
-
-        if timeframe == 'today':
-            start_time = datetime.combine(datetime.today(), datetime.min.time())
-        elif timeframe == 'yesterday':
-            start_time = datetime.combine(datetime.today() - timedelta(days=1), datetime.min.time())
-        else:
-            try:
-                start_time = datetime.strptime(timeframe, '%Y-%m-%d')
-            except ValueError:
-                print("Error: Invalid date format. Use 'today', 'yesterday', or 'YYYY-MM-DD'.")
-                return []
-
-        end_time = start_time + timedelta(days=1)
-        filled_orders = [trade for trade in all_trades if start_time <= trade.time < end_time]
-        print(f"Number of filled orders retrieved: {len(filled_orders)}")
-
-        for trade in filled_orders:
-            print(f"Filled Order - ID: {trade.order.orderId}, Symbol: {trade.contract.symbol}, "
-                  f"Type: {trade.order.orderType}, Quantity: {trade.order.totalQuantity}, "
-                  f"Time: {trade.time}, Fill Price: {trade.execution.avgPrice}")
-
-        return filled_orders
-
-    except Exception as e:
-        print(f"Error: Failed to retrieve filled orders: {e}")
-        return []
-
-
-def submit_adaptive_order_conditional_stop(
-        order_contract: Contract,
-        order_type: str,
-        action: str,
-        is_live: bool,
-        quantity: int,
-        trigger_price: float,
-        underlying_contract: Contract,
-        limit_price: float = None
-) -> Optional[Order]:
-    """
-    Submits a bracket order with a primary order and a conditional stop-loss order (no take profit).
-
-    :param order_contract: The contract for the order.
-    :param limit_price: Limit price for the primary order.
-    :param order_type: 'LMT' or 'MKT'.
-    :param action: 'BUY' or 'SELL'.
-    :param is_live: Whether to transmit the order (True = live, False = staged).
-    :param quantity: Number of contracts.
-    :param trigger_price: Trigger price for the stop-loss order.
-    :param underlying_contract: The underlying contract for the stop condition.
-    :return: The parent order object if successful, None otherwise.
-    """
-    print(f"Entering function: submit_adaptive_order_with_bracket_stop with parameters: {locals()}")
-
-    # Validate inputs
-    if action not in ["BUY", "SELL"]:
-        print(f"Error: Invalid action: {action}. Must be 'BUY' or 'SELL'.")
-        return None
-
-    if order_type not in ["MKT", "LMT"]:
-        print(f"Error: Invalid order type: {order_type}. Must be 'MKT' or 'LMT'.")
-        return None
-
-    try:
-        # Create the primary (entry) order
-        print(f"Creating primary order with action: {action}, order type: {order_type}, limit price: {limit_price}")
-        parent_order = Order(
-            orderType=order_type,
-            action=action,
-            totalQuantity=quantity,
-            tif='DAY',
-            algoStrategy='Adaptive',
-            orderRef=cfg.myStrategyTag,
-            algoParams=[TagValue('adaptivePriority', 'Normal')],
-            transmit=False  # Ensure the child order is linked before transmitting
-        )
-
-        if order_type == 'LMT':
-            parent_order.lmtPrice = limit_price
-            print(f"Primary order limit price set to: {limit_price}")
-
-        # Place the primary order
-        print(f"Placing primary order: {parent_order}")
-        ib.placeOrder(order_contract, parent_order)
-        ib.sleep(1)  # Allow time for order ID generation
-
-        if not parent_order.orderId:
-            print("Error: Primary order failed to generate an order ID.")
-            return None
-        print(f"Primary order placed successfully with order ID: {parent_order.orderId}")
-
-        # Create the stop-loss order
-        stop_loss_order = Order(
-            orderType='STP',
-            action='SELL' if action == 'BUY' else 'BUY',
-            totalQuantity=quantity,
-            auxPrice=trigger_price,
-            parentId=parent_order.orderId,
-            tif='DAY',
-            transmit=is_live,  # Transmit this order when ready
-            orderRef=cfg.myStrategyTag
-        )
-
-        # Set price condition for the stop-loss order
-        condition = PriceCondition(
-            isMore=True if action == 'SELL' else False,
-            price=trigger_price,
-            conId=underlying_contract.conId,
-            exch=underlying_contract.exchange
-        )
-        stop_loss_order.conditions = [condition]
-        print(f"Condition added to stop-loss order: {condition}")
-
-        # Place the stop-loss order
-        print(f"Placing stop-loss order: {stop_loss_order}")
-        ib.placeOrder(order_contract, stop_loss_order)
-        print("Bracket order with stop-loss submitted successfully.")
-
-        return parent_order
-
-    except Exception as e:
-        print(f"Error: Failed to submit bracket order with stop-loss: {str(e)}")
-        return None
+        return f"Error: Order placement failed with error: {str(e)}"
 
 def submit_adaptive_order(order_contract, limit_price: float = None, order_type: str = 'MKT', action: str = 'BUY', is_live: bool = False, quantity: int = 1):
     """
@@ -357,87 +184,22 @@ def submit_adaptive_order(order_contract, limit_price: float = None, order_type:
         print(f"    Error: {e}")
         return None
 
-def submit_adaptive_order_trailing_stop(
-        order_contract: Contract,
-        order_type: str,
-        action: str,
-        is_live: bool,
-        quantity: int,
-        stop_loss_amt: float,
-        limit_price: float = None
-) -> Optional[tuple[Trade, Trade]]:
-    """
-    Submits an adaptive order with a trailing stop and returns both orders (parent and child) as Trade objects.
+def create_bag(und_contract: Contract, legs: list, actions: list, ratios: list) -> Contract:
+    print(f"Creating combo bag with parameters: {locals()}")
+    bag_contract = Contract()
+    bag_contract.symbol = und_contract.symbol
+    bag_contract.secType = 'BAG'
+    bag_contract.currency = und_contract.currency
+    bag_contract.exchange = und_contract.exchange
+    bag_contract.comboLegs = []
 
-    Args:
-        order_contract: The contract for the order.
-        order_type: 'LMT' or 'MKT'.
-        action: 'BUY' or 'SELL'.
-        is_live: Whether to transmit the orders immediately.
-        quantity: Number of contracts.
-        stop_loss_amt: The trailing stop loss amount.
-        limit_price: Limit price for the primary order (optional for LMT orders).
+    for leg, action, ratio in zip(legs, actions, ratios):
+        combo_leg = ComboLeg()
+        combo_leg.conId = leg.conId
+        combo_leg.action = action
+        combo_leg.ratio = ratio
+        combo_leg.exchange = leg.exchange
+        combo_leg.openClose = 0
+        bag_contract.comboLegs.append(combo_leg)
 
-    Returns:
-        A tuple of (primary_trade, trailing_stop_trade) if successful, None otherwise.
-    """
-    print(f"Entering function: submit_adaptive_order_trailing_stop with parameters: {locals()}")
-    order_contract.exchange = 'SMART'
-
-    if action not in ["BUY", "SELL"]:
-        print(f"Error: Invalid action: {action}. Must be 'BUY' or 'SELL'.")
-        return None
-
-    if order_type not in ["MKT", "LMT"]:
-        print(f"Error: Invalid order type: {order_type}. Must be 'MKT' or 'LMT'.")
-        return None
-
-    if order_type == "LMT" and (limit_price is None or isnan(limit_price)):
-        print(f"Error: Must specify a limit price for adaptive LMT orders")
-        return None
-
-    # Create the primary order
-    primary_order = Order(
-        orderType=order_type,
-        action=action,
-        totalQuantity=quantity,
-        tif='DAY',
-        algoStrategy='Adaptive',
-        orderRef=cfg.myStrategyTag,
-        algoParams=[TagValue('adaptivePriority', 'Normal')],
-        transmit=False  # Do not transmit yet
-    )
-
-    if order_type == 'LMT':
-        primary_order.lmtPrice = limit_price
-
-    # Place the primary order
-    primary_trade = ib.placeOrder(order_contract, primary_order)
-    ib.sleep(1)
-
-    if not primary_order.orderId:
-        print("Error: Primary order failed to generate an order ID.")
-        return None
-
-    # Create the trailing stop order
-    trailing_stop_order = Order(
-        orderType='TRAIL',
-        action='SELL' if action == 'BUY' else 'BUY',
-        totalQuantity=quantity,
-        auxPrice=stop_loss_amt,
-        parentId=primary_order.orderId,
-        orderRef=cfg.myStrategyTag,
-        tif='DAY',
-        transmit=is_live  # Transmit live if specified
-    )
-
-    # Place the trailing stop order
-    trailing_stop_trade = ib.placeOrder(order_contract, trailing_stop_order)
-
-    if primary_trade.orderStatus.status and trailing_stop_trade.orderStatus.status:
-        print("Info: Adaptive order with linked trailing stop submitted successfully.")
-    else:
-        print("Error: Order submission failed.")
-        return None
-
-    return primary_trade, trailing_stop_trade
+    return bag_contract

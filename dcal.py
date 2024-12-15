@@ -1,56 +1,89 @@
 import logging
-
 from qualify import qualify_contract
 from orders import submit_adaptive_order, create_bag
+from ib_insync import TimeCondition, Order, Contract, ComboLeg, TagValue
 import cfg
-from ib_insync import *
 from ib_instance import ib
-
-# Constants
-PUT = 'P'
-CALL = 'C'
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     handlers=[logging.StreamHandler()])
-
 logger = logging.getLogger('DoubleCalendar')
-logging.getLogger('ib_insync').setLevel(logging.WARN)
 
-def submit_double_calendar(symbol: str, put_strike: float, call_strike: float, exchange,
-                           und_price: float, quantity: int,
-                           short_expiry_date: str, long_expiry_date: str, is_live: bool = False):
+
+def get_symbol_params(symbol: str, strategy_type: str):
+    """
+    Retrieve the configuration parameters for the given symbol from cfg.py based on the strategy type.
+
+    Args:
+        symbol (str): The symbol to look up (e.g., 'SPX', 'NDX', 'RUT').
+        strategy_type (str): The type of strategy ('daily' or 'weekly').
+
+    Returns:
+        dict: The configuration parameters for the symbol.
+    """
+    if strategy_type == 'daily':
+        params = cfg.daily_dc_params.get(symbol)
+    elif strategy_type == 'weekly':
+        params = cfg.weekly_dc_params.get(symbol)
+    else:
+        raise ValueError(f"Invalid strategy_type: {strategy_type}. Must be 'daily' or 'weekly'.")
+
+    if not params:
+        raise ValueError(f"Configuration parameters for symbol {symbol} not found in {strategy_type}_dc_params.")
+
+    return params
+
+
+def submit_double_calendar(symbol: str, put_strike: float, call_strike: float,
+                           short_expiry_date: str, long_expiry_date: str,
+                           strategy_type: str, is_live: bool = False):
     """
     Submits an order for a Double Calendar Spread.
 
     Args:
         symbol: The underlying symbol to trade.
-        long_strike_distance: Distance from the underlying price for the long strike.
-        short_strike_distance: Distance for the short strike.
-        short_expiry_days: Days to expiry for the short legs.
-        long_expiry_days: Days to expiry for the long legs.
+        put_strike: Strike price for the put options.
+        call_strike: Strike price for the call options.
+        short_expiry_date: Expiry date for the short legs (YYYYMMDD).
+        long_expiry_date: Expiry date for the long legs (YYYYMMDD).
+        strategy_type: The type of strategy ('daily' or 'weekly').
         is_live: Whether to place a live order or a paper trade.
 
     Returns:
         A Trade object for the submitted order, or None if the order submission fails.
     """
     try:
+        # Retrieve parameters for the symbol and strategy
+        params = get_symbol_params(symbol, strategy_type)
+        exchange = params["exchange"]
+        opt_exchange = params["opt_exchange"]
+        quantity = params["quantity"]
+
+        logger.info(f"Preparing Double Calendar Spread for {symbol} ({strategy_type.upper()} strategy):")
+        logger.info(f"  Call Strike: {call_strike}, Put Strike: {put_strike}")
+        logger.info(f"  Short Expiry: {short_expiry_date}, Long Expiry: {long_expiry_date}")
+        logger.info(f"  Exchange: {opt_exchange}, Quantity: {quantity}")
 
         # Qualify the underlying contract
         und_contract = qualify_contract(
             symbol=symbol,
-            secType='IND',
+            secType=params["sec_type"],
             exchange=exchange,
             currency='USD'
         )
 
         # Qualify contracts for each leg
         legs = [
-            qualify_contract(symbol=symbol, secType='OPT', exchange=exchange, right=CALL, strike=call_strike, lastTradeDateOrContractMonth=long_expiry_date),
-            qualify_contract(symbol=symbol, secType='OPT', exchange=exchange, right=CALL, strike=call_strike, lastTradeDateOrContractMonth=short_expiry_date),
-            qualify_contract(symbol=symbol, secType='OPT', exchange=exchange, right=PUT, strike=put_strike, lastTradeDateOrContractMonth=long_expiry_date),
-            qualify_contract(symbol=symbol, secType='OPT', exchange=exchange, right=PUT, strike=put_strike, lastTradeDateOrContractMonth=short_expiry_date),
+            qualify_contract(symbol=symbol, secType='OPT', exchange=opt_exchange, right='C', strike=call_strike,
+                             lastTradeDateOrContractMonth=long_expiry_date),
+            qualify_contract(symbol=symbol, secType='OPT', exchange=opt_exchange, right='C', strike=call_strike,
+                             lastTradeDateOrContractMonth=short_expiry_date),
+            qualify_contract(symbol=symbol, secType='OPT', exchange=opt_exchange, right='P', strike=put_strike,
+                             lastTradeDateOrContractMonth=long_expiry_date),
+            qualify_contract(symbol=symbol, secType='OPT', exchange=opt_exchange, right='P', strike=put_strike,
+                             lastTradeDateOrContractMonth=short_expiry_date),
         ]
 
         # Define actions and ratios for the legs
@@ -61,26 +94,28 @@ def submit_double_calendar(symbol: str, put_strike: float, call_strike: float, e
         bag_contract = create_bag(und_contract, legs, leg_actions, ratios)
         bag_contract.exchange = 'SMART'
 
+        logger.info(f"Combo contract created for {symbol}:")
+        logger.info(f"  Exchange: SMART, Legs: {len(legs)}")
+
         # Submit an adaptive market order for the combo
         trade = submit_adaptive_order(
             order_contract=bag_contract,
             order_type='MKT',
             action='BUY',
             is_live=is_live,
-            quantity=quantity
+            quantity=1  # Quantity for combo orders is typically 1
         )
 
         if not trade:
-            logger.error("Failed to submit Double Calendar order.")
+            logger.error(f"Failed to submit Double Calendar order for {symbol}.")
             return None
 
         logger.info(f"Double Calendar Spread submitted successfully. Order ID: {trade.order.orderId}")
         return trade
 
     except Exception as e:
-        logger.exception(f"Error submitting Double Calendar Spread order: {e}")
+        logger.exception(f"Error submitting Double Calendar Spread order for {symbol}: {e}")
         return None
-
 
 def close_dcal(symbol, closing_date_time):
     """

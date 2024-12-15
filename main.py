@@ -4,11 +4,11 @@ from market_data import get_current_mid_price
 from qualify import qualify_contract
 from ib_instance import connect_to_ib
 import cfg
-from datetime import datetime, timedelta
 from options import find_option_closest_to_delta, fetch_option_chain
 import sys
 import argparse
 from orders import show_recently_filled_spreads
+from dteutil import calculate_expiry_date
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
@@ -18,33 +18,20 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger('DC')
 logging.getLogger('ib_insync').setLevel(logging.CRITICAL)
 
-def calculate_expiry_date(days_from_today: int) -> str:
-    # Calculate the initial expiry date
-    expiry_date = datetime.now() + timedelta(days=days_from_today)
-
-    # Check if the expiry date falls on a weekend (Saturday or Sunday)
-    if expiry_date.weekday() == 5:  # Saturday
-        expiry_date += timedelta(days=2)  # Move to Monday
-    elif expiry_date.weekday() == 6:  # Sunday
-        expiry_date += timedelta(days=1)  # Move to Monday
-
-    # Return the expiry date in the desired format
-    return expiry_date.strftime('%Y%m%d')
 
 
-def open_dcal(symbol: str, is_live: bool, is_test: bool):
-    logger.info("Starting Double Calendar Trade Submission")
-    und_exchange = cfg.exchange
+def open_double_calendar(symbol: str, params: dict, is_live: bool):
+    logger.info(f"Starting Double Calendar Trade Submission for {symbol}")
 
-    # Connect to the appropriate IBKR instance
-    connect_to_ib(is_test=is_test)
+    # Connect to IBKR
+    #connect_to_ib(is_test=is_test)
 
     try:
         # Qualify the underlying contract
         und_contract = qualify_contract(
             symbol=symbol,
-            secType='IND',
-            exchange='CBOE',
+            secType=params["sec_type"],
+            exchange=params["exchange"],
             currency='USD'
         )
 
@@ -53,60 +40,75 @@ def open_dcal(symbol: str, is_live: bool, is_test: bool):
         logger.info(f"Current market price for {symbol}: {current_mid}")
 
         # Calculate expiry dates
-        short_expiry_date = calculate_expiry_date(cfg.short_expiry_days)
-        long_expiry_date = calculate_expiry_date(cfg.long_expiry_days)
+        short_expiry_date = calculate_expiry_date(params["short_expiry_days"])
+        long_expiry_date = calculate_expiry_date(params["long_expiry_days"])
 
+        # Fetch option chain and find strikes
         short_tickers = fetch_option_chain(und_contract, short_expiry_date, current_mid)
+        call_strike = find_option_closest_to_delta(short_tickers, 'C', params["target_call_delta"]).contract.strike
+        put_strike = find_option_closest_to_delta(short_tickers, 'P', params["target_put_delta"]).contract.strike
 
-        call_strike = find_option_closest_to_delta(short_tickers, 'C', cfg.target_call_delta).contract.strike
-        put_strike = find_option_closest_to_delta(short_tickers, 'P', cfg.target_put_delta).contract.strike
-
+        # Submit the trade
+        # Example call for a daily strategy
         trade = submit_double_calendar(
-            symbol=symbol, put_strike=put_strike, call_strike=call_strike, exchange=und_exchange, und_price=current_mid,
-            quantity=cfg.quantity, short_expiry_date=short_expiry_date, long_expiry_date=long_expiry_date, is_live=is_live)
-        print(trade)
+            symbol='SPX',
+            put_strike=put_strike,
+            call_strike=call_strike,
+            short_expiry_date=short_expiry_date,
+            long_expiry_date=long_expiry_date,
+            strategy_type='daily',
+            is_live=is_live
+        )
+        logger.info(trade)
 
         # Setup the closing order
-        try:
-            close_dcal(symbol, cfg.time_to_close)
-        except Exception as e:
-            print(f"An error occurred: {e}")
-
+        close_dcal(symbol, cfg.time_to_close)
     except Exception as e:
-        logger.exception(f"Error during trade submission: {e}")
-
+        logger.exception(f"Error during trade submission for {symbol}: {e}")
 
 def main():
-    symbol = cfg.symbol
-
-    # Initialize the argument parser
     parser = argparse.ArgumentParser(description="Process double calendar options strategies.")
-
-    # Define the arguments
-    parser.add_argument('-o', '--open', action='store_true', help="Open a double calendar (DCAL) position.")
-    parser.add_argument('-c', '--close', action='store_true', help="Close a double calendar (DCAL) position.")
+    parser.add_argument('-d', '--open_daily', action='store_true', help="Open a daily double calendar (DCAL) position.")
+    parser.add_argument('-c', '--close_daily', action='store_true', help="Close a daily double calendar (DCAL) position.")
+    parser.add_argument('-w', '--open_weekly', action='store_true', help="Open a weekly double calendar (DCAL) position.")
     parser.add_argument('-l', '--live', action='store_true', help="Use live orders?")
     parser.add_argument('-t', '--test', action='store_true', help="Use test TWS configuration.")
-
-    # Parse the arguments
     args = parser.parse_args()
-    connect_to_ib(args.test)
 
-    # Handle the arguments
-    if args.open and args.close:
-        print("Error: Cannot specify both -o and -c. Choose one.", file=sys.stderr)
+    # Ensure mutually exclusive arguments
+    if sum([args.open_daily, args.open_weekly, args.close_daily]) > 1:
+        logger.error("Error: Cannot specify more than one action. Use only one of -d (open daily), -w (open weekly), or -c (close daily).")
         sys.exit(1)
-    elif args.open:
-        open_dcal(symbol, is_live=args.live, is_test=args.test)
-        show_recently_filled_spreads('today', cfg.myStrategyTag)
-    elif args.close:
-        closing_date_time = datetime.now().strftime('%Y%m%d') + ' ' + cfg.time_to_close  # Full closing time
-        close_dcal(symbol, closing_date_time)
-        show_recently_filled_spreads(timeframe='today', strategy=cfg.myStrategyTag)
+
+    # Determine symbols and strategy
+    if args.open_weekly:
+        print("Opening weekly DCs")
+        symbols = cfg.weekly_dc_symbols
+        strategy = cfg.weekly_dc_params
+    elif args.open_daily:
+        print("Opening daily DCs")
+        symbols = cfg.daily_dc_symbols
+        strategy = cfg.daily_dc_params
+    elif args.close_daily:
+        symbols = cfg.daily_dc_symbols
+        strategy = None
     else:
-        print("Error: No action specified. Use -o to open or -c to close.", file=sys.stderr)
+        logger.error("Error: No action specified. Use -d, -w, or -c.")
         sys.exit(1)
 
+    connect_to_ib(is_test=args.test)
+
+    # Execute the selected action
+    if args.open_daily or args.open_weekly:
+        for symbol in symbols:
+            params = strategy.get(symbol)
+            if not params:
+                logger.error(f"Parameters for {symbol} not found in strategy configuration.")
+                continue
+            open_double_calendar(symbol, params, args.live)
+    elif args.close_daily:
+        for symbol in symbols:
+            close_dcal(symbol, cfg.time_to_close)
 
 if __name__ == "__main__":
     main()

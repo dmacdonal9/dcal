@@ -3,9 +3,8 @@ from ib_insync import Contract, Option, Ticker
 from ib_instance import ib
 import math
 import logging
-import sys
 
-logging.getLogger('ib_insync').setLevel(logging.CRITICAL)
+logging.getLogger('ib_insync').setLevel(logging.ERROR)
 
 def get_closest_strike(contract, right, exchange, expiry, price):
     print(f"Entering function: get_closest_strike with parameters: {locals()}")
@@ -195,7 +194,7 @@ def find_option_closest_to_delta(tickers, right, target_delta):
 
 
 def fetch_option_chain(my_contract, my_expiry: str, last_price: float) -> list[Ticker]:
-    chains = ib.reqSecDefOptParams(my_contract.symbol, '', my_contract.secType, my_contract.conId)
+    chains = ib.reqSecDefOptParams(my_contract.symbol, '' if my_contract.secType=='FUT' else my_contract.exchange, my_contract.secType, my_contract.conId)
 
     # Filter chain for the specific expiry
     expiry_chain = next((chain for chain in chains if my_expiry in chain.expirations), None)
