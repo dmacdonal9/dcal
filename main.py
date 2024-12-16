@@ -17,8 +17,6 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger('DC')
 logging.getLogger('ib_insync').setLevel(logging.CRITICAL)
 
-
-
 def open_double_calendar(symbol: str, params: dict, is_live: bool):
     logger.info(f"Starting Double Calendar Trade Submission for {symbol}")
 
@@ -47,8 +45,9 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
         long_expiry_date = calculate_expiry_date(params["long_expiry_days"])
 
         # Fetch option chain and find strikes
-        short_tickers = fetch_option_chain(und_contract, short_expiry_date, current_mid)
-        long_tickers = fetch_option_chain(und_contract, long_expiry_date, current_mid)
+        opt_exchange = params["opt_exchange"]
+        short_tickers = fetch_option_chain(und_contract, opt_exchange, short_expiry_date, current_mid)
+        long_tickers = fetch_option_chain(und_contract, opt_exchange, long_expiry_date, current_mid)
 
         short_call_strike = find_option_closest_to_delta(short_tickers, 'C', params["target_call_delta"]).contract.strike
         short_put_strike = find_option_closest_to_delta(short_tickers, 'P', params["target_put_delta"]).contract.strike

@@ -4,7 +4,7 @@ from ib_instance import ib
 import math
 import logging
 
-logging.getLogger('ib_insync').setLevel(logging.ERROR)
+logging.getLogger('ib_insync').setLevel(logging.WARN)
 
 def get_closest_strike(contract, right, exchange, expiry, price):
     print(f"Entering function: get_closest_strike with parameters: {locals()}")
@@ -186,7 +186,7 @@ def get_option_by_target_price(und_contract, right, opt_exchange, expiry, multip
 
 
 def find_option_closest_to_delta(tickers, right, target_delta):
-    #print(f"Entering function: fetch_option_chain with parameters: {locals()}")
+    #print(f"Entering function: find_option_closest_to_delta with parameters: {locals()}")
 
     options = [option for option in tickers if option.contract.right == right and option.modelGreeks is not None]
     print("find_option_closest_to_delta(): ", right, target_delta)
@@ -207,7 +207,7 @@ def find_option_closest_to_delta(tickers, right, target_delta):
     return closest_option
 
 
-def fetch_option_chain(my_contract, my_expiry: str, last_price: float) -> list[Ticker]:
+def fetch_option_chain(my_contract, opt_exchange: str, my_expiry: str, last_price: float) -> list[Ticker]:
     print(f"Entering function: fetch_option_chain with parameters: {locals()}")
 
     chains = ib.reqSecDefOptParams(my_contract.symbol, my_contract.exchange if my_contract.secType=='FUT' else '', my_contract.secType, my_contract.conId)
@@ -236,7 +236,7 @@ def fetch_option_chain(my_contract, my_expiry: str, last_price: float) -> list[T
                 right='P',
                 currency='USD',
                 multiplier=my_contract.multiplier,
-                exchange=my_contract.exchange
+                exchange=opt_exchange
             )
         else:
             put_option_contract = Option(
@@ -245,7 +245,7 @@ def fetch_option_chain(my_contract, my_expiry: str, last_price: float) -> list[T
                 lastTradeDateOrContractMonth=my_expiry,
                 right='P',
                 currency='USD',
-                exchange=my_contract.exchange
+                exchange=opt_exchange
             )
         option_contracts.append(put_option_contract)
 
@@ -259,7 +259,7 @@ def fetch_option_chain(my_contract, my_expiry: str, last_price: float) -> list[T
                 right='C',
                 currency='USD',
                 multiplier=my_contract.multiplier,
-                exchange=my_contract.exchange
+                exchange=opt_exchange
             )
         else:
             call_option_contract = Option(
@@ -268,7 +268,7 @@ def fetch_option_chain(my_contract, my_expiry: str, last_price: float) -> list[T
                 lastTradeDateOrContractMonth=my_expiry,
                 right='C',
                 currency='USD',
-                exchange=my_contract.exchange
+                exchange=opt_exchange
             )
         option_contracts.append(call_option_contract)
 

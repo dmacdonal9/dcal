@@ -32,7 +32,7 @@ daily_dc_params = {
         {
         "quantity": 1,
         "exchange": 'NASDAQ',
-        "opt_exchange": 'ISE',
+        "opt_exchange": 'SMART',
         "sec_type": 'IND',
         "mult": '100',
         "target_put_delta": 20,
@@ -44,7 +44,7 @@ daily_dc_params = {
         {
         "quantity": 1,
         "exchange": 'RUSSELL',
-        "opt_exchange": 'CBOE',
+        "opt_exchange": 'SMART',
         "sec_type": 'IND',
         "mult": '100',
         "target_put_delta": 20,
@@ -95,7 +95,7 @@ weekly_dc_params = {
         {
         "quantity": 1,
         "exchange": 'RUSSELL',
-        "opt_exchange": 'CBOE',
+        "opt_exchange": 'SMART',
         "sec_type": 'IND',
         "mult": '100',
         "target_put_delta": 25,
