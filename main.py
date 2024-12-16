@@ -1,13 +1,12 @@
 import logging
 from dcal import submit_double_calendar, close_dcal
 from market_data import get_current_mid_price
-from qualify import qualify_contract
+from qualify import qualify_contract, get_front_month_contract_date
 from ib_instance import connect_to_ib
 import cfg
 from options import find_option_closest_to_delta, fetch_option_chain
 import sys
 import argparse
-from orders import show_recently_filled_spreads
 from dteutil import calculate_expiry_date
 
 # Configure logging
@@ -23,13 +22,17 @@ logging.getLogger('ib_insync').setLevel(logging.CRITICAL)
 def open_double_calendar(symbol: str, params: dict, is_live: bool):
     logger.info(f"Starting Double Calendar Trade Submission for {symbol}")
 
-    # Connect to IBKR
-    #connect_to_ib(is_test=is_test)
-
     try:
         # Qualify the underlying contract
+        if params["sec_type"] == 'FUT':
+            fut_date = get_front_month_contract_date(symbol, params["exchange"], params["mult"],
+                                                     calculate_expiry_date(params["long_expiry_days"]))
+        else:
+            fut_date=''
+
         und_contract = qualify_contract(
             symbol=symbol,
+            lastTradeDateOrContractMonth=fut_date,
             secType=params["sec_type"],
             exchange=params["exchange"],
             currency='USD'
@@ -45,24 +48,28 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
 
         # Fetch option chain and find strikes
         short_tickers = fetch_option_chain(und_contract, short_expiry_date, current_mid)
-        call_strike = find_option_closest_to_delta(short_tickers, 'C', params["target_call_delta"]).contract.strike
-        put_strike = find_option_closest_to_delta(short_tickers, 'P', params["target_put_delta"]).contract.strike
+        long_tickers = fetch_option_chain(und_contract, long_expiry_date, current_mid)
+
+        short_call_strike = find_option_closest_to_delta(short_tickers, 'C', params["target_call_delta"]).contract.strike
+        short_put_strike = find_option_closest_to_delta(short_tickers, 'P', params["target_put_delta"]).contract.strike
+
+        long_call_strike = find_option_closest_to_delta(long_tickers, 'C', params["target_call_delta"]).contract.strike
+        long_put_strike = find_option_closest_to_delta(long_tickers, 'P', params["target_put_delta"]).contract.strike
 
         # Submit the trade
         # Example call for a daily strategy
         trade = submit_double_calendar(
-            symbol='SPX',
-            put_strike=put_strike,
-            call_strike=call_strike,
+            symbol=symbol,
+            short_put_strike=short_put_strike,
+            short_call_strike=short_call_strike,
+            long_put_strike=long_put_strike,
+            long_call_strike=long_call_strike,
             short_expiry_date=short_expiry_date,
             long_expiry_date=long_expiry_date,
             strategy_type='daily',
             is_live=is_live
         )
         logger.info(trade)
-
-        # Setup the closing order
-        close_dcal(symbol, cfg.time_to_close)
     except Exception as e:
         logger.exception(f"Error during trade submission for {symbol}: {e}")
 
@@ -90,8 +97,9 @@ def main():
         symbols = cfg.daily_dc_symbols
         strategy = cfg.daily_dc_params
     elif args.close_daily:
+        print("Closing daily DCs")
         symbols = cfg.daily_dc_symbols
-        strategy = None
+        strategy = cfg.daily_dc_params
     else:
         logger.error("Error: No action specified. Use -d, -w, or -c.")
         sys.exit(1)

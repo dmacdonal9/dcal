@@ -1,6 +1,7 @@
 # Default configuration (live trading)
 myStrategyTag = 'DC'
 daily_dc_symbols = ['SPX','NDX','RUT']
+daily_dc_symbols = ['SPX']
 weekly_dc_symbols = ['SPX','NDX','RUT']
 
 # IBKR Connection Parameters
@@ -16,6 +17,18 @@ test_ib_clientid = 2  # Client ID for test TWS
 time_to_close = '09:34:00'  # The time to close the position (HH:MM:SS format) in EST
 
 daily_dc_params = {
+    'ES':
+        {
+        "quantity": 1,
+        "exchange": 'CME',
+        "opt_exchange": 'CME',
+        "sec_type": 'FUT',
+        "mult": '50',
+        "target_put_delta": 20,
+        "target_call_delta": 20,
+        "short_expiry_days": 1,
+        "long_expiry_days": 7,
+        },
     'NDX':
         {
         "quantity": 1,
@@ -25,7 +38,7 @@ daily_dc_params = {
         "mult": '100',
         "target_put_delta": 20,
         "target_call_delta": 20,
-        "short_expiry_days": 5,
+        "short_expiry_days": 1,
         "long_expiry_days": 7,
         },
     'RUT':
@@ -37,8 +50,8 @@ daily_dc_params = {
         "mult": '100',
         "target_put_delta": 20,
         "target_call_delta": 20,
-        "short_expiry_days": 5,
-        "long_expiry_days": 21,
+        "short_expiry_days": 1,
+        "long_expiry_days": 7,
         },
     'SPX':
         {
@@ -49,12 +62,24 @@ daily_dc_params = {
         "mult": '100',
         "target_put_delta": 20,
         "target_call_delta": 20,
-        "short_expiry_days": 5,
+        "short_expiry_days": 1,
         "long_expiry_days": 7,
         },
     }
 
 weekly_dc_params = {
+    'ES':
+        {
+        "quantity": 1,
+        "exchange": 'CME',
+        "opt_exchange": 'CME',
+        "sec_type": 'FUT',
+        "mult": '50',
+        "target_put_delta": 20,
+        "target_call_delta": 20,
+        "short_expiry_days": 5,
+        "long_expiry_days": 9,
+        },
     'NDX':
         {
         "quantity": 1,

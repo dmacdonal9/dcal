@@ -1,5 +1,5 @@
 from datetime import datetime
-from ib_insync import Contract, Option, Ticker
+from ib_insync import Contract, Option, Ticker,FuturesOption
 from ib_instance import ib
 import math
 import logging
@@ -92,7 +92,7 @@ def get_atm_strike(qualified_contract, exchange, opt_exchange, expiry, current_p
         return float('nan')
 
 
-def get_option_by_target_price(und_contract, right, opt_exchange, expiry, target_price, atm_strike):
+def get_option_by_target_price(und_contract, right, opt_exchange, expiry, multiplier, target_price, atm_strike):
     print(f"Entering function: get_option_by_target_price with parameters: {locals()}")
     try:
         chains = ib.reqSecDefOptParams(
@@ -120,14 +120,26 @@ def get_option_by_target_price(und_contract, right, opt_exchange, expiry, target
     contracts = []
     for strike in strikes:
         for trading_class in trading_classes:
-            option = Option(
-                symbol=und_contract.symbol,
-                lastTradeDateOrContractMonth=expiry,
-                strike=strike,
-                right=right,
-                exchange=opt_exchange,
-                currency=und_contract.currency,
-                tradingClass=trading_class)
+            if und_contract.secType == 'FUT':
+                option = FuturesOption(
+                    symbol=und_contract.symbol,
+                    strike=strike,
+                    lastTradeDateOrContractMonth=expiry,
+                    right=right,
+                    currency='USD',
+                    multiplier=multiplier,
+                    exchange=opt_exchange
+                )
+            else:
+                option = Option(
+                    symbol=und_contract.symbol,
+                    lastTradeDateOrContractMonth=expiry,
+                    strike=strike,
+                    right=right,
+                    exchange=opt_exchange,
+                    currency=und_contract.currency,
+                    tradingClass=trading_class
+                )
             contracts.append(option)
     print(f"Info: Created {len(contracts)} option contracts with right '{right}' and filtered strikes.")
 
@@ -174,6 +186,8 @@ def get_option_by_target_price(und_contract, right, opt_exchange, expiry, target
 
 
 def find_option_closest_to_delta(tickers, right, target_delta):
+    #print(f"Entering function: fetch_option_chain with parameters: {locals()}")
+
     options = [option for option in tickers if option.contract.right == right and option.modelGreeks is not None]
     print("find_option_closest_to_delta(): ", right, target_delta)
 
@@ -194,7 +208,9 @@ def find_option_closest_to_delta(tickers, right, target_delta):
 
 
 def fetch_option_chain(my_contract, my_expiry: str, last_price: float) -> list[Ticker]:
-    chains = ib.reqSecDefOptParams(my_contract.symbol, '' if my_contract.secType=='FUT' else my_contract.exchange, my_contract.secType, my_contract.conId)
+    print(f"Entering function: fetch_option_chain with parameters: {locals()}")
+
+    chains = ib.reqSecDefOptParams(my_contract.symbol, my_contract.exchange if my_contract.secType=='FUT' else '', my_contract.secType, my_contract.conId)
 
     # Filter chain for the specific expiry
     expiry_chain = next((chain for chain in chains if my_expiry in chain.expirations), None)
@@ -212,26 +228,48 @@ def fetch_option_chain(my_contract, my_expiry: str, last_price: float) -> list[T
 
     # Process relevant put strikes
     for strike in relevant_put_strikes:
-        put_option_contract = Option(
-            symbol=my_contract.symbol,
-            strike=strike,
-            lastTradeDateOrContractMonth=my_expiry,
-            right='P',
-            currency='USD',
-            exchange=my_contract.exchange
-        )
+        if my_contract.secType=='FUT':
+            put_option_contract = FuturesOption(
+                symbol=my_contract.symbol,
+                strike=strike,
+                lastTradeDateOrContractMonth=my_expiry,
+                right='P',
+                currency='USD',
+                multiplier=my_contract.multiplier,
+                exchange=my_contract.exchange
+            )
+        else:
+            put_option_contract = Option(
+                symbol=my_contract.symbol,
+                strike=strike,
+                lastTradeDateOrContractMonth=my_expiry,
+                right='P',
+                currency='USD',
+                exchange=my_contract.exchange
+            )
         option_contracts.append(put_option_contract)
 
     # Process relevant call strikes
     for strike in relevant_call_strikes:
-        call_option_contract = Option(
-            symbol=my_contract.symbol,
-            strike=strike,
-            lastTradeDateOrContractMonth=my_expiry,
-            right='C',
-            currency='USD',
-            exchange=my_contract.exchange
-        )
+        if my_contract.secType=='FUT':
+            call_option_contract = FuturesOption(
+                symbol=my_contract.symbol,
+                strike=strike,
+                lastTradeDateOrContractMonth=my_expiry,
+                right='C',
+                currency='USD',
+                multiplier=my_contract.multiplier,
+                exchange=my_contract.exchange
+            )
+        else:
+            call_option_contract = Option(
+                symbol=my_contract.symbol,
+                strike=strike,
+                lastTradeDateOrContractMonth=my_expiry,
+                right='C',
+                currency='USD',
+                exchange=my_contract.exchange
+            )
         option_contracts.append(call_option_contract)
 
     # Qualify contracts with error handling
