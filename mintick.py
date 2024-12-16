@@ -1,38 +1,38 @@
 min_tick_data = {
-    "ES": {
+    "ES": {  # E-mini S&P 500 Futures Options (FOP)
         "thresholds": [
-            {"max_price": 3.00, "tick_size": 0.05, "tick_value": 2.50},
+            {"max_price": 10.00, "tick_size": 0.05, "tick_value": 2.50},
             {"max_price": float('inf'), "tick_size": 0.25, "tick_value": 12.50}
         ]
     },
-    "NQ": {
+    "NQ": {  # E-mini Nasdaq 100 Futures Options (FOP)
         "thresholds": [
-            {"max_price": 5.00, "tick_size": 0.25, "tick_value": 5.00},
-            {"max_price": float('inf'), "tick_size": 0.50, "tick_value": 10.00}
+            {"max_price": 5.00, "tick_size": 0.05, "tick_value": 1.00},
+            {"max_price": float('inf'), "tick_size": 0.25, "tick_value": 5.00}
         ]
     },
-    "RTY": {
+    "RTY": {  # E-mini Russell 2000 Futures Options (FOP)
         "thresholds": [
-            {"max_price": 3.00, "tick_size": 0.10, "tick_value": 5.00},
-            {"max_price": float('inf'), "tick_size": 0.50, "tick_value": 25.00}
+            {"max_price": 5.00, "tick_size": 0.05, "tick_value": 5.00},
+            {"max_price": float('inf'), "tick_size": 0.10, "tick_value": 10.00}
         ]
     },
-    "SPX": {
+    "SPX": {  # S&P 500 Index Options (OPT)
         "thresholds": [
             {"max_price": 3.00, "tick_size": 0.05, "tick_value": 5.00},
             {"max_price": float('inf'), "tick_size": 0.10, "tick_value": 10.00}
         ]
     },
-    "NDX": {
+    "NDX": {  # Nasdaq 100 Index Options (OPT)
         "thresholds": [
-            {"max_price": 5.00, "tick_size": 0.25, "tick_value": 25.00},
-            {"max_price": float('inf'), "tick_size": 0.50, "tick_value": 50.00}
+            {"max_price": 3.00, "tick_size": 0.05, "tick_value": 5.00},
+            {"max_price": float('inf'), "tick_size": 0.1, "tick_value": 10.00}
         ]
     },
-    "RUT": {
+    "RUT": {  # Russell 2000 Index Options (OPT)
         "thresholds": [
-            {"max_price": 3.00, "tick_size": 0.10, "tick_value": 10.00},
-            {"max_price": float('inf'), "tick_size": 0.20, "tick_value": 20.00}
+            {"max_price": 3.00, "tick_size": 0.05, "tick_value": 5.00},
+            {"max_price": float('inf'), "tick_size": 0.10, "tick_value": 10.00}
         ]
     }
 }

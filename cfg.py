@@ -1,7 +1,6 @@
 # Default configuration (live trading)
 myStrategyTag = 'DC'
 daily_dc_symbols = ['SPX','NDX','RUT']
-daily_dc_symbols = ['SPX']
 weekly_dc_symbols = ['SPX','NDX','RUT']
 
 # IBKR Connection Parameters
