@@ -5,6 +5,9 @@ from orders import submit_adaptive_order, create_bag
 from ib_insync import TimeCondition, Order, Contract, ComboLeg, TagValue
 import cfg
 from ib_instance import ib
+import pytz
+from datetime import datetime, timedelta
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
@@ -128,48 +131,39 @@ def submit_double_calendar(symbol: str,
         logger.exception(f"Error submitting Double Calendar Spread order for {symbol}: {e}")
         return None
 
-def close_dcal(symbol, closing_date_time):
+def close_dcal(symbol):
     """
     Close a double calendar (DCAL) position for a given symbol with an adaptive market order
-    at a specified time (e.g., 9:35 AM next trading day).
+    at a specified time (adjusted for the exchange timezone).
 
     Args:
         symbol (str): The symbol of the instrument to close (e.g., 'SPX').
-        closing_date_time (str): The time to close the position (e.g., '20241210 08:30:00' in YYYYMMDD HH:MM:SS format).
+        closing_time (str): The time to close the position (e.g., '09:34:00').
     """
-    print(f"close_dcal(): ",symbol,closing_date_time)
+    print(f"close_dcal(): {symbol}")
+
     # Fetch open positions and filter legs matching the symbol
     positions = ib.positions()
-    print(positions)
     legs = []
 
     for pos in positions:
-        if pos.contract.symbol == symbol:
-            details = ib.reqContractDetails(pos.contract)
-            print(details)
-
-    for pos in positions:
         if pos.contract.symbol == symbol and pos.position != 0:
-            # Ensure legs are fully qualified
             ib.qualifyContracts(pos.contract)
             legs.append(
                 ComboLeg(
                     conId=pos.contract.conId,
-                    ratio=abs(int(pos.position)),  # Convert position to integer ratio
-                    action='SELL' if pos.position < 0 else 'BUY',  # Reverse action to close
+                    ratio=abs(int(pos.position)),
+                    action='SELL' if pos.position < 0 else 'BUY',
                     exchange=pos.contract.exchange,
                     openClose=1
                 )
             )
 
     if not legs:
-        raise ValueError(f"No open position legs found for symbol: {symbol}")
+        print(f"No open position legs found for symbol: {symbol}")
+        return
 
-    for leg in legs:
-        print(
-            f"Leg details: conId={leg.conId}, action={leg.action}, ratio={leg.ratio}, exchange={leg.exchange}, openClose={leg.openClose}")
-
-    # Create the BAG combo contract
+    # Define the combo contract
     combo_contract = Contract(
         symbol=symbol,
         secType='BAG',
@@ -178,29 +172,17 @@ def close_dcal(symbol, closing_date_time):
         comboLegs=legs
     )
 
-    # validate BAG
-    #contract_details = ib.reqContractDetails(combo_contract)
-    #print(contract_details)
-
     # Create the adaptive market order
     close_order = Order(
         orderRef=cfg.myStrategyTag,
-        action='SELL',  # Adaptive market order to close the position
+        action='SELL',
         orderType='MKT',
-        totalQuantity=1,  # Quantity for combo orders is typically 1 (not per leg)
+        totalQuantity=1,
         algoStrategy='Adaptive',
-        algoParams=[
-            TagValue(tag='adaptivePriority', value='Normal')  # Adjust to 'Patient' or 'Urgent' as needed
-        ]
+        algoParams=[TagValue(tag='adaptivePriority', value='Normal')]
     )
 
-    # Attach a time condition
-    time_condition = TimeCondition(
-        isMore=True,  # Order activates after the specified time
-        time=closing_date_time  # Time in 'YYYYMMDD HH:MM:SS' format
-    )
-    close_order.conditions.append(time_condition)
-    close_order.conditionsIgnoreRth = False  # Respect regular trading hours
+    close_order.conditionsIgnoreRth = False
 
     print(f"Combo Contract: {combo_contract}")
     print(f"Close Order: {close_order}")
@@ -209,5 +191,5 @@ def close_dcal(symbol, closing_date_time):
     trade = ib.placeOrder(combo_contract, close_order)
     ib.sleep(2)
 
-    print(f"Submitted close order for {symbol} with time condition: {closing_date_time}")
+    print(f"Submitted close order for {symbol}")
     print(trade.orderStatus)
