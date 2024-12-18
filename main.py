@@ -115,7 +115,7 @@ def main():
             open_double_calendar(symbol, params, args.live)
     elif args.close_daily:
         for symbol in symbols:
-            close_dcal(symbol, cfg.time_to_close)
+            close_dcal(symbol)
 
 if __name__ == "__main__":
     main()
