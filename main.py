@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger('DC')
 logging.getLogger('ib_insync').setLevel(logging.CRITICAL)
 
-def open_double_calendar(symbol: str, params: dict, is_live: bool):
+def open_double_calendar(symbol: str, params: dict, is_live: bool, strategy_type: str = 'daily'):
     logger.info(f"Starting Double Calendar Trade Submission for {symbol}")
 
     try:
@@ -56,7 +56,6 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
         long_put_strike = find_option_closest_to_delta(long_tickers, 'P', params["target_put_delta"]).contract.strike
 
         # Submit the trade
-        # Example call for a daily strategy
         trade = submit_double_calendar(
             symbol=symbol,
             short_put_strike=short_put_strike,
@@ -65,7 +64,7 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
             long_call_strike=long_call_strike,
             short_expiry_date=short_expiry_date,
             long_expiry_date=long_expiry_date,
-            strategy_type='daily',
+            strategy_type=strategy_type,
             is_live=is_live
         )
         logger.info(trade)
@@ -112,7 +111,7 @@ def main():
             if not params:
                 logger.error(f"Parameters for {symbol} not found in strategy configuration.")
                 continue
-            open_double_calendar(symbol, params, args.live)
+            open_double_calendar(symbol, params, args.live, strategy_type='weekly' if args.open_weekly else 'daily')
     elif args.close_daily:
         for symbol in symbols:
             close_dcal(symbol)

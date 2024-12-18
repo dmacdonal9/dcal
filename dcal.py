@@ -117,7 +117,8 @@ def submit_double_calendar(symbol: str,
             order_type='MKT',
             action='BUY',
             is_live=is_live,
-            quantity=quantity
+            quantity=quantity,
+            order_ref=cfg.daily_dcal_tag if strategy_type == 'daily' else cfg.weekly_dcal_tag,
         )
 
         if not trade:
@@ -174,7 +175,7 @@ def close_dcal(symbol):
 
     # Create the adaptive market order
     close_order = Order(
-        orderRef=cfg.myStrategyTag,
+        orderRef=cfg.daily_dcal_tag,
         action='SELL',
         orderType='MKT',
         totalQuantity=1,

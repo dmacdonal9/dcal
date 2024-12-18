@@ -88,7 +88,8 @@ def show_recently_filled_spreads(timeframe='today', strategy=''):
         return []
 
 
-def submit_limit_order(order_contract, limit_price: float, action: str, is_live: bool, quantity: int):
+def submit_limit_order(order_contract, limit_price: float, action: str, is_live: bool, quantity: int,
+                       order_ref: str = ''):
     """
     Submits a limit order for the given contract and dynamically adjusts the price based on the minimum tick size.
 
@@ -112,7 +113,7 @@ def submit_limit_order(order_contract, limit_price: float, action: str, is_live:
         print(f"Adjusted limit price for {order_contract.symbol}: {limit_price} (Min Tick: {min_tick})")
 
     order = LimitOrder(action=action, lmtPrice=limit_price, transmit=is_live, totalQuantity=quantity)
-    order.orderRef = cfg.myStrategyTag
+    order.orderRef = order_ref
 
     try:
         trade = ib.placeOrder(order_contract, order)
@@ -125,7 +126,9 @@ def submit_limit_order(order_contract, limit_price: float, action: str, is_live:
     except Exception as e:
         return f"Error: Order placement failed with error: {str(e)}"
 
-def submit_adaptive_order(order_contract, limit_price: float = None, order_type: str = 'MKT', action: str = 'BUY', is_live: bool = False, quantity: int = 1):
+
+def submit_adaptive_order(order_contract, limit_price: float = None, order_type: str = 'MKT', action: str = 'BUY',
+                          is_live: bool = False, quantity: int = 1, order_ref: str = ''):
     """
     Submits an adaptive order (limit or market) for the given contract and checks the status.
 
@@ -159,7 +162,7 @@ def submit_adaptive_order(order_contract, limit_price: float = None, order_type:
             algoStrategy='Adaptive',
             algoParams=algo_params,
             transmit=is_live,
-            orderRef=cfg.myStrategyTag
+            orderRef=order_ref
         )
         print(f"Order created: {order}")
 

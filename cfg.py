@@ -1,5 +1,8 @@
 # Default configuration (live trading)
-myStrategyTag = 'DC'
+daily_dcal_tag = 'DDC'
+weekly_dcal_tag = 'WDC'
+
+
 daily_dc_symbols = ['SPX','NDX','RUT']
 weekly_dc_symbols = ['SPX','NDX','RUT']
 
