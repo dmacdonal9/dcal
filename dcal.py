@@ -154,7 +154,7 @@ def close_dcal(symbol):
                 ComboLeg(
                     conId=pos.contract.conId,
                     ratio=abs(int(pos.position)),
-                    action='SELL' if pos.position < 0 else 'BUY',
+                    action='SELL' if pos.position > 0 else 'BUY',
                     exchange=pos.contract.exchange,
                     openClose=1
                 )
@@ -176,7 +176,7 @@ def close_dcal(symbol):
     # Create the adaptive market order
     close_order = Order(
         orderRef=cfg.daily_dcal_tag,
-        action='SELL',
+        action='BUY',
         orderType='MKT',
         totalQuantity=1,
         algoStrategy='Adaptive',

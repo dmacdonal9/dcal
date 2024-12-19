@@ -2,8 +2,8 @@
 daily_dcal_tag = 'DDC'
 weekly_dcal_tag = 'WDC'
 
-
 daily_dc_symbols = ['SPX','NDX','RUT']
+daily_dc_symbols = ['SPX']
 weekly_dc_symbols = ['SPX','NDX','RUT']
 
 # IBKR Connection Parameters
