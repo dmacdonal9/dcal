@@ -69,13 +69,13 @@ daily_dc_params = {
     }
 
 weekly_dc_params = {
-    'ES':
+    'IWM':
         {
         "quantity": 1,
-        "exchange": 'CME',
-        "opt_exchange": 'CME',
-        "sec_type": 'FUT',
-        "mult": '50',
+        "exchange": 'SMART',
+        "opt_exchange": 'CBOE',
+        "sec_type": 'STK',
+        "mult": '100',
         "target_put_delta": 20,
         "target_call_delta": 20,
         "short_expiry_days": 5,
