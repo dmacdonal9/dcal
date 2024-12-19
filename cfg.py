@@ -2,9 +2,8 @@
 daily_dcal_tag = 'DDC'
 weekly_dcal_tag = 'WDC'
 
-daily_dc_symbols = ['SPX','NDX','RUT']
-daily_dc_symbols = ['SPX']
-weekly_dc_symbols = ['SPX','NDX','RUT']
+daily_dc_symbols = ['SPX','NDX']
+weekly_dc_symbols = ['SPX','NDX']
 
 # IBKR Connection Parameters
 ib_host = '127.0.0.1'
