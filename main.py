@@ -1,13 +1,15 @@
 import logging
 from dcal import submit_double_calendar, close_dcal
-from market_data import get_current_mid_price
-from qualify import qualify_contract, get_front_month_contract_date
-from ib_instance import connect_to_ib
+from ibstrat.market_data import get_current_mid_price
+from ibstrat.qualify import qualify_contract, get_front_month_contract_date
+from ibstrat.ib_instance import connect_to_ib
 import cfg
-from options import find_option_closest_to_delta, fetch_option_chain
+from ibstrat.chain import fetch_option_chain
+from ibstrat.options import find_option_by_target_delta
+from ibstrat.positions import load_positions
 import sys
 import argparse
-from dteutil import calculate_expiry_date
+from ibstrat.dteutil import calculate_expiry_date
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
@@ -15,7 +17,7 @@ logging.basicConfig(level=logging.INFO,
                     handlers=[logging.StreamHandler()])
 
 logger = logging.getLogger('DC')
-logging.getLogger('ib_insync').setLevel(logging.CRITICAL)
+logging.getLogger('ib_async').setLevel(logging.CRITICAL)
 
 def open_double_calendar(symbol: str, params: dict, is_live: bool, strategy_type: str = 'daily'):
     logger.info(f"Starting Double Calendar Trade Submission for {symbol}")
@@ -46,14 +48,14 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool, strategy_type
 
         # Fetch option chain and find strikes
         opt_exchange = params["opt_exchange"]
-        short_tickers = fetch_option_chain(und_contract, opt_exchange, short_expiry_date, current_mid)
-        long_tickers = fetch_option_chain(und_contract, opt_exchange, long_expiry_date, current_mid)
+        short_tickers = fetch_option_chain(und_contract, opt_exchange, short_expiry_date, current_mid,trading_class=params['trading_class'])
+        long_tickers = fetch_option_chain(und_contract, opt_exchange, long_expiry_date, current_mid,trading_class=params['trading_class'])
 
-        short_call_strike = find_option_closest_to_delta(short_tickers, 'C', params["target_call_delta"]).contract.strike
-        short_put_strike = find_option_closest_to_delta(short_tickers, 'P', params["target_put_delta"]).contract.strike
+        short_call_strike = find_option_by_target_delta(short_tickers, 'C', params["target_call_delta"],trading_class=params['trading_class']).contract.strike
+        short_put_strike = find_option_by_target_delta(short_tickers, 'P', params["target_put_delta"],trading_class=params['trading_class']).contract.strike
 
-        long_call_strike = find_option_closest_to_delta(long_tickers, 'C', params["target_call_delta"]).contract.strike
-        long_put_strike = find_option_closest_to_delta(long_tickers, 'P', params["target_put_delta"]).contract.strike
+        long_call_strike = find_option_by_target_delta(long_tickers, 'C', params["target_call_delta"],trading_class=params['trading_class']).contract.strike
+        long_put_strike = find_option_by_target_delta(long_tickers, 'P', params["target_put_delta"],trading_class=params['trading_class']).contract.strike
 
         # Submit the trade
         trade = submit_double_calendar(
@@ -102,7 +104,22 @@ def main():
         logger.error("Error: No action specified. Use -d, -w, or -c.")
         sys.exit(1)
 
-    connect_to_ib(is_test=args.test)
+    live_orders = args.live
+    use_test_tws = args.test
+
+    logger.info(f"Live trading mode: {'Enabled' if live_orders else 'Disabled'}")
+    logger.info(f"Test TWS mode: {'Enabled' if use_test_tws else 'Disabled'}")
+
+    # Connect to the appropriate IBKR instance
+    if use_test_tws:
+        ib = connect_to_ib(cfg.test_ib_host, cfg.test_ib_port, cfg.test_ib_clientid, 2)
+        logger.info("Connected to test TWS configuration.")
+    else:
+        ib = connect_to_ib(cfg.ib_host, cfg.ib_port, cfg.ib_clientid, 2)
+        logger.info("Connected to live TWS configuration.")
+
+    # cache open positions so we can check for collisions later
+    load_positions()
 
     # Execute the selected action
     if args.open_daily or args.open_weekly:
