@@ -92,14 +92,22 @@ def submit_double_calendar(symbol: str,
 
         # Qualify contracts for each leg
         legs = [
-            qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT', exchange=opt_exchange, right='C', strike=long_call_strike,
-                             lastTradeDateOrContractMonth=long_expiry_date,multiplier=und_contract.multiplier,tradingClass=params['trading_class']),
-            qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT', exchange=opt_exchange, right='C', strike=short_call_strike,
-                             lastTradeDateOrContractMonth=short_expiry_date,multiplier=und_contract.multiplier,tradingClass=params['trading_class']),
-            qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT', exchange=opt_exchange, right='P', strike=long_put_strike,
-                             lastTradeDateOrContractMonth=long_expiry_date,multiplier=und_contract.multiplier,tradingClass=params['trading_class']),
-            qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT', exchange=opt_exchange, right='P', strike=short_put_strike,
-                             lastTradeDateOrContractMonth=short_expiry_date,multiplier=und_contract.multiplier,tradingClass=params['trading_class']),
+            qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT',
+                             exchange=opt_exchange, right='C', strike=long_call_strike,
+                             lastTradeDateOrContractMonth=long_expiry_date,multiplier=und_contract.multiplier,
+                             tradingClass=params['trading_class']),
+            qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT',
+                             exchange=opt_exchange, right='C', strike=short_call_strike,
+                             lastTradeDateOrContractMonth=short_expiry_date,multiplier=und_contract.multiplier,
+                             tradingClass=params['trading_class']),
+            qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT',
+                             exchange=opt_exchange, right='P', strike=long_put_strike,
+                             lastTradeDateOrContractMonth=long_expiry_date,multiplier=und_contract.multiplier,
+                             tradingClass=params['trading_class']),
+            qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT',
+                             exchange=opt_exchange, right='P', strike=short_put_strike,
+                             lastTradeDateOrContractMonth=short_expiry_date,multiplier=und_contract.multiplier,
+                             tradingClass=params['trading_class']),
         ]
 
         # Define actions and ratios for the legs

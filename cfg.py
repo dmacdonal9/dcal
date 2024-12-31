@@ -3,7 +3,7 @@ daily_dcal_tag = 'DDC'
 weekly_dcal_tag = 'WDC'
 
 daily_dc_symbols = ['SPX','NDX']
-weekly_dc_symbols = ['SPX','NDX']
+weekly_dc_symbols = ['RUT']
 
 # IBKR Connection Parameters
 ib_host = '127.0.0.1'
@@ -83,8 +83,8 @@ weekly_dc_params = {
         "mult": '100',
         "target_put_delta": 20,
         "target_call_delta": 20,
-        "short_expiry_days": 5,
-        "long_expiry_days": 9,
+        "short_expiry_days": 3,
+        "long_expiry_days": 7,
         },
     'NDX':
         {
@@ -96,14 +96,14 @@ weekly_dc_params = {
         "mult": '100',
         "target_put_delta": 25,
         "target_call_delta": 15,
-        "short_expiry_days": 5,
+        "short_expiry_days": 3,
         "long_expiry_days": 7,
         },
     'RUT':
         {
         "quantity": 1,
         "exchange": 'RUSSELL',
-        "opt_exchange": 'SMART',
+        "opt_exchange": 'CBOE',
         "sec_type": 'IND',
         "trading_class": 'RUTW',
         "mult": '100',
@@ -122,7 +122,7 @@ weekly_dc_params = {
         "mult": '100',
         "target_put_delta": 25,
         "target_call_delta": 15,
-        "short_expiry_days": 5,
+        "short_expiry_days": 3,
         "long_expiry_days": 7,
         },
     }
