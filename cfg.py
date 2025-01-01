@@ -25,8 +25,8 @@ dc_params = {
         "mult": '100',
         "target_put_delta": 20,
         "target_call_delta": 20,
-        "short_expiry_days": 3,
-        "long_expiry_days": 7,
+        "short_expiry_days": 5,
+        "long_expiry_days": 21,
         },
     'NDX':
         {

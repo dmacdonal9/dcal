@@ -72,6 +72,7 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
     except Exception as e:
         logger.exception(f"Error during trade submission for {symbol}: {e}")
 
+
 def main():
     parser = argparse.ArgumentParser(description="Process double calendar options strategies.")
     parser.add_argument('-l', '--live', action='store_true', help="Use live orders?")
@@ -97,7 +98,7 @@ def main():
         logger.info("Connected to live TWS configuration.")
 
     # cache open positions so we can check for collisions later
-    load_positions()
+    #load_positions()
 
     # Execute the selected action
     for symbol in symbols:
