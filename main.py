@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger('DC')
 logging.getLogger('ib_async').setLevel(logging.CRITICAL)
 
-def open_double_calendar(symbol: str, params: dict, is_live: bool, strategy_type: str = 'daily'):
+def open_double_calendar(symbol: str, params: dict, is_live: bool):
     logger.info(f"Starting Double Calendar Trade Submission for {symbol}")
 
     try:
@@ -66,7 +66,6 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool, strategy_type
             long_call_strike=long_call_strike,
             short_expiry_date=short_expiry_date,
             long_expiry_date=long_expiry_date,
-            strategy_type=strategy_type,
             is_live=is_live
         )
         logger.info(trade)
@@ -75,34 +74,13 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool, strategy_type
 
 def main():
     parser = argparse.ArgumentParser(description="Process double calendar options strategies.")
-    parser.add_argument('-d', '--open_daily', action='store_true', help="Open a daily double calendar (DCAL) position.")
-    parser.add_argument('-c', '--close_daily', action='store_true', help="Close a daily double calendar (DCAL) position.")
-    parser.add_argument('-w', '--open_weekly', action='store_true', help="Open a weekly double calendar (DCAL) position.")
     parser.add_argument('-l', '--live', action='store_true', help="Use live orders?")
     parser.add_argument('-t', '--test', action='store_true', help="Use test TWS configuration.")
     args = parser.parse_args()
 
-    # Ensure mutually exclusive arguments
-    if sum([args.open_daily, args.open_weekly, args.close_daily]) > 1:
-        logger.error("Error: Cannot specify more than one action. Use only one of -d (open daily), -w (open weekly), or -c (close daily).")
-        sys.exit(1)
-
     # Determine symbols and strategy
-    if args.open_weekly:
-        print("Opening weekly DCs")
-        symbols = cfg.weekly_dc_symbols
-        strategy = cfg.weekly_dc_params
-    elif args.open_daily:
-        print("Opening daily DCs")
-        symbols = cfg.daily_dc_symbols
-        strategy = cfg.daily_dc_params
-    elif args.close_daily:
-        print("Closing daily DCs")
-        symbols = cfg.daily_dc_symbols
-        strategy = cfg.daily_dc_params
-    else:
-        logger.error("Error: No action specified. Use -d, -w, or -c.")
-        sys.exit(1)
+    symbols = cfg.weekly_dc_symbols
+    strategy = cfg.dc_params
 
     live_orders = args.live
     use_test_tws = args.test
@@ -122,16 +100,13 @@ def main():
     load_positions()
 
     # Execute the selected action
-    if args.open_daily or args.open_weekly:
-        for symbol in symbols:
-            params = strategy.get(symbol)
-            if not params:
-                logger.error(f"Parameters for {symbol} not found in strategy configuration.")
-                continue
-            open_double_calendar(symbol, params, args.live, strategy_type='weekly' if args.open_weekly else 'daily')
-    elif args.close_daily:
-        for symbol in symbols:
-            close_dcal(symbol)
+    for symbol in symbols:
+        params = strategy.get(symbol)
+        if not params:
+            logger.error(f"Parameters for {symbol} not found in strategy configuration.")
+            continue
+        open_double_calendar(symbol, params, args.live)
+
 
 if __name__ == "__main__":
     main()

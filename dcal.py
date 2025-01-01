@@ -17,26 +17,12 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger('DoubleCalendar')
 
 
-def get_symbol_params(symbol: str, strategy_type: str):
-    """
-    Retrieve the configuration parameters for the given symbol from cfg.py based on the strategy type.
+def get_symbol_params(symbol: str):
 
-    Args:
-        symbol (str): The symbol to look up (e.g., 'SPX', 'NDX', 'RUT').
-        strategy_type (str): The type of strategy ('daily' or 'weekly').
-
-    Returns:
-        dict: The configuration parameters for the symbol.
-    """
-    if strategy_type == 'daily':
-        params = cfg.daily_dc_params.get(symbol)
-    elif strategy_type == 'weekly':
-        params = cfg.weekly_dc_params.get(symbol)
-    else:
-        raise ValueError(f"Invalid strategy_type: {strategy_type}. Must be 'daily' or 'weekly'.")
+    params = cfg.dc_params.get(symbol)
 
     if not params:
-        raise ValueError(f"Configuration parameters for symbol {symbol} not found in {strategy_type}_dc_params.")
+        raise ValueError(f"Configuration parameters for symbol {symbol} not found in cfg")
 
     return params
 
@@ -45,7 +31,7 @@ def submit_double_calendar(symbol: str,
                            short_put_strike: float, short_call_strike: float,
                            long_put_strike: float, long_call_strike: float,
                            short_expiry_date: str, long_expiry_date: str,
-                           strategy_type: str, is_live: bool = False):
+                           is_live: bool = False):
     """
     Submits an order for a Double Calendar Spread.
 
@@ -63,12 +49,12 @@ def submit_double_calendar(symbol: str,
     """
     try:
         # Retrieve parameters for the symbol and strategy
-        params = get_symbol_params(symbol, strategy_type)
+        params = get_symbol_params(symbol)
         exchange = params["exchange"]
         opt_exchange = params["opt_exchange"]
         quantity = params["quantity"]
 
-        print(f"Preparing Double Calendar Spread for {symbol} ({strategy_type.upper()} strategy):")
+        print(f"Preparing Double Calendar Spread for {symbol} ")
         print(f"  Short Call Strike: {short_call_strike}, Short Put Strike: {short_put_strike}")
         print(f"  Long Call Strike: {long_call_strike}, Long Put Strike: {long_put_strike}")
         print(f"  Short Expiry: {short_expiry_date}, Long Expiry: {long_expiry_date}")
@@ -128,7 +114,7 @@ def submit_double_calendar(symbol: str,
             action='BUY',
             is_live=is_live,
             quantity=quantity,
-            order_ref=cfg.daily_dcal_tag if strategy_type == 'daily' else cfg.weekly_dcal_tag,
+            order_ref=cfg.weekly_dcal_tag
         )
 
         if not trade:
@@ -141,66 +127,3 @@ def submit_double_calendar(symbol: str,
     except Exception as e:
         logger.exception(f"Error submitting Double Calendar Spread order for {symbol}: {e}")
         return None
-
-def close_dcal(symbol):
-    """
-    Close a double calendar (DCAL) position for a given symbol with an adaptive market order
-    at a specified time (adjusted for the exchange timezone).
-
-    Args:
-        symbol (str): The symbol of the instrument to close (e.g., 'SPX').
-        closing_time (str): The time to close the position (e.g., '09:34:00').
-    """
-    print(f"close_dcal(): {symbol}")
-
-    # Fetch open positions and filter legs matching the symbol
-    positions = ib.positions()
-    legs = []
-
-    for pos in positions:
-        if pos.contract.symbol == symbol and pos.position != 0:
-            ib.qualifyContracts(pos.contract)
-            legs.append(
-                ComboLeg(
-                    conId=pos.contract.conId,
-                    ratio=abs(int(pos.position)),
-                    action='SELL' if pos.position > 0 else 'BUY',
-                    exchange=pos.contract.exchange,
-                    openClose=1
-                )
-            )
-
-    if not legs:
-        print(f"No open position legs found for symbol: {symbol}")
-        return
-
-    # Define the combo contract
-    combo_contract = Contract(
-        symbol=symbol,
-        secType='BAG',
-        exchange='SMART',
-        currency='USD',
-        comboLegs=legs
-    )
-
-    # Create the adaptive market order
-    close_order = Order(
-        orderRef=cfg.daily_dcal_tag,
-        action='BUY',
-        orderType='MKT',
-        totalQuantity=1,
-        algoStrategy='Adaptive',
-        algoParams=[TagValue(tag='adaptivePriority', value='Normal')]
-    )
-
-    close_order.conditionsIgnoreRth = False
-
-    print(f"Combo Contract: {combo_contract}")
-    print(f"Close Order: {close_order}")
-
-    # Submit the order
-    trade = ib.placeOrder(combo_contract, close_order)
-    ib.sleep(2)
-
-    print(f"Submitted close order for {symbol}")
-    print(trade.orderStatus)
