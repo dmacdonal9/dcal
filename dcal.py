@@ -3,11 +3,7 @@ from ibstrat.qualify import qualify_contract, get_front_month_contract_date
 from ibstrat.dteutil import calculate_expiry_date
 from ibstrat.orders import create_bag
 from ibstrat.adaptive import submit_adaptive_order
-from ib_async import Order, Contract, ComboLeg, TagValue
 import cfg
-from ibstrat.ib_instance import ib
-import pytz
-from datetime import datetime, timedelta
 
 
 # Configure logging

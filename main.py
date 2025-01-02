@@ -1,13 +1,11 @@
 import logging
-from dcal import submit_double_calendar, close_dcal
+from dcal import submit_double_calendar
 from ibstrat.market_data import get_current_mid_price
 from ibstrat.qualify import qualify_contract, get_front_month_contract_date
 from ibstrat.ib_instance import connect_to_ib
 import cfg
 from ibstrat.chain import fetch_option_chain
 from ibstrat.options import find_option_by_target_delta
-from ibstrat.positions import load_positions
-import sys
 import argparse
 from ibstrat.dteutil import calculate_expiry_date
 
