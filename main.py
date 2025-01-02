@@ -41,19 +41,23 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
         logger.info(f"Current market price for {symbol}: {current_mid}")
 
         # Calculate expiry dates
-        short_expiry_date = calculate_expiry_date(params["short_expiry_days"])
-        long_expiry_date = calculate_expiry_date(params["long_expiry_days"])
+        short_put_expiry_date = calculate_expiry_date(params["short_put_expiry_days"])
+        short_call_expiry_date = calculate_expiry_date(params["short_call_expiry_days"])
+        long_put_expiry_date = calculate_expiry_date(params["long_put_expiry_days"])
+        long_call_expiry_date = calculate_expiry_date(params["long_call_expiry_days"])
+
 
         # Fetch option chain and find strikes
         opt_exchange = params["opt_exchange"]
-        short_tickers = fetch_option_chain(und_contract, opt_exchange, short_expiry_date, current_mid,trading_class=params['trading_class'])
-        long_tickers = fetch_option_chain(und_contract, opt_exchange, long_expiry_date, current_mid,trading_class=params['trading_class'])
+        short_put_tickers = fetch_option_chain(und_contract, opt_exchange, short_put_expiry_date, current_mid,trading_class=params['trading_class'])
+        long_put_tickers = fetch_option_chain(und_contract, opt_exchange, long_put_expiry_date, current_mid,trading_class=params['trading_class'])
+        short_call_tickers = fetch_option_chain(und_contract, opt_exchange, short_call_expiry_date, current_mid,trading_class=params['trading_class'])
+        long_call_tickers = fetch_option_chain(und_contract, opt_exchange, long_call_expiry_date, current_mid,trading_class=params['trading_class'])
 
-        short_call_strike = find_option_by_target_delta(short_tickers, 'C', params["target_call_delta"],trading_class=params['trading_class']).contract.strike
-        short_put_strike = find_option_by_target_delta(short_tickers, 'P', params["target_put_delta"],trading_class=params['trading_class']).contract.strike
-
-        long_call_strike = find_option_by_target_delta(long_tickers, 'C', params["target_call_delta"],trading_class=params['trading_class']).contract.strike
-        long_put_strike = find_option_by_target_delta(long_tickers, 'P', params["target_put_delta"],trading_class=params['trading_class']).contract.strike
+        short_call_strike = find_option_by_target_delta(short_call_tickers, 'C', params["target_call_delta"],trading_class=params['trading_class']).contract.strike
+        short_put_strike = find_option_by_target_delta(short_put_tickers, 'P', params["target_put_delta"],trading_class=params['trading_class']).contract.strike
+        long_call_strike = find_option_by_target_delta(long_call_tickers, 'C', params["target_call_delta"],trading_class=params['trading_class']).contract.strike
+        long_put_strike = find_option_by_target_delta(long_put_tickers, 'P', params["target_put_delta"],trading_class=params['trading_class']).contract.strike
 
         # Submit the trade
         trade = submit_double_calendar(
@@ -62,8 +66,10 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
             short_call_strike=short_call_strike,
             long_put_strike=long_put_strike,
             long_call_strike=long_call_strike,
-            short_expiry_date=short_expiry_date,
-            long_expiry_date=long_expiry_date,
+            short_put_expiry_date=short_put_expiry_date,
+            long_put_expiry_date=long_put_expiry_date,
+            short_call_expiry_date=short_call_expiry_date,
+            long_call_expiry_date=long_call_expiry_date,
             is_live=is_live
         )
         logger.info(trade)
@@ -79,7 +85,7 @@ def main():
 
     # Determine symbols and strategy
     symbols = cfg.weekly_dc_symbols
-    strategy = cfg.dc_params
+    strategy = cfg.fri_dc_params
 
     live_orders = args.live
     use_test_tws = args.test

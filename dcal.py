@@ -15,7 +15,7 @@ logger = logging.getLogger('DoubleCalendar')
 
 def get_symbol_params(symbol: str):
 
-    params = cfg.dc_params.get(symbol)
+    params = cfg.fri_dc_params.get(symbol)
 
     if not params:
         raise ValueError(f"Configuration parameters for symbol {symbol} not found in cfg")
@@ -26,23 +26,10 @@ def get_symbol_params(symbol: str):
 def submit_double_calendar(symbol: str,
                            short_put_strike: float, short_call_strike: float,
                            long_put_strike: float, long_call_strike: float,
-                           short_expiry_date: str, long_expiry_date: str,
+                           short_put_expiry_date: str, long_put_expiry_date: str,
+                           short_call_expiry_date: str, long_call_expiry_date: str,
                            is_live: bool = False):
-    """
-    Submits an order for a Double Calendar Spread.
 
-    Args:
-        symbol: The underlying symbol to trade.
-        put_strike: Strike price for the put options.
-        call_strike: Strike price for the call options.
-        short_expiry_date: Expiry date for the short legs (YYYYMMDD).
-        long_expiry_date: Expiry date for the long legs (YYYYMMDD).
-        strategy_type: The type of strategy ('daily' or 'weekly').
-        is_live: Whether to place a live order or a paper trade.
-
-    Returns:
-        A Trade object for the submitted order, or None if the order submission fails.
-    """
     try:
         # Retrieve parameters for the symbol and strategy
         params = get_symbol_params(symbol)
@@ -53,7 +40,8 @@ def submit_double_calendar(symbol: str,
         print(f"Preparing Double Calendar Spread for {symbol} ")
         print(f"  Short Call Strike: {short_call_strike}, Short Put Strike: {short_put_strike}")
         print(f"  Long Call Strike: {long_call_strike}, Long Put Strike: {long_put_strike}")
-        print(f"  Short Expiry: {short_expiry_date}, Long Expiry: {long_expiry_date}")
+        print(f"  Short Put Expiry: {short_put_expiry_date}, Long Put Expiry: {long_put_expiry_date}")
+        print(f"  Short Call Expiry: {short_call_expiry_date}, Long Call Expiry: {long_call_expiry_date}")
         print(f"  Exchange: {opt_exchange}, Quantity: {quantity}")
 
         if params["sec_type"] == 'FUT':
@@ -76,19 +64,19 @@ def submit_double_calendar(symbol: str,
         legs = [
             qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT',
                              exchange=opt_exchange, right='C', strike=long_call_strike,
-                             lastTradeDateOrContractMonth=long_expiry_date,multiplier=und_contract.multiplier,
+                             lastTradeDateOrContractMonth=long_call_expiry_date,multiplier=und_contract.multiplier,
                              tradingClass=params['trading_class']),
             qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT',
                              exchange=opt_exchange, right='C', strike=short_call_strike,
-                             lastTradeDateOrContractMonth=short_expiry_date,multiplier=und_contract.multiplier,
+                             lastTradeDateOrContractMonth=short_call_expiry_date,multiplier=und_contract.multiplier,
                              tradingClass=params['trading_class']),
             qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT',
                              exchange=opt_exchange, right='P', strike=long_put_strike,
-                             lastTradeDateOrContractMonth=long_expiry_date,multiplier=und_contract.multiplier,
+                             lastTradeDateOrContractMonth=long_put_expiry_date,multiplier=und_contract.multiplier,
                              tradingClass=params['trading_class']),
             qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT',
                              exchange=opt_exchange, right='P', strike=short_put_strike,
-                             lastTradeDateOrContractMonth=short_expiry_date,multiplier=und_contract.multiplier,
+                             lastTradeDateOrContractMonth=short_put_expiry_date,multiplier=und_contract.multiplier,
                              tradingClass=params['trading_class']),
         ]
 
