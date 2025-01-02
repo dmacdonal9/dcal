@@ -50,9 +50,18 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
         # Fetch option chain and find strikes
         opt_exchange = params["opt_exchange"]
         short_put_tickers = fetch_option_chain(und_contract, opt_exchange, short_put_expiry_date, current_mid,trading_class=params['trading_class'])
+        if short_put_expiry_date == short_call_expiry_date:
+            short_call_tickers = short_put_tickers
+        else:
+            short_call_tickers = fetch_option_chain(und_contract, opt_exchange, short_call_expiry_date, current_mid,
+                                                    trading_class=params['trading_class'])
+
         long_put_tickers = fetch_option_chain(und_contract, opt_exchange, long_put_expiry_date, current_mid,trading_class=params['trading_class'])
-        short_call_tickers = fetch_option_chain(und_contract, opt_exchange, short_call_expiry_date, current_mid,trading_class=params['trading_class'])
-        long_call_tickers = fetch_option_chain(und_contract, opt_exchange, long_call_expiry_date, current_mid,trading_class=params['trading_class'])
+        if long_put_expiry_date == long_call_expiry_date:
+            long_call_tickers = long_put_tickers
+        else:
+            long_call_tickers = fetch_option_chain(und_contract, opt_exchange, long_call_expiry_date, current_mid,
+                                                   trading_class=params['trading_class'])
 
         short_call_strike = find_option_by_target_delta(short_call_tickers, 'C', params["target_call_delta"],trading_class=params['trading_class']).contract.strike
         short_put_strike = find_option_by_target_delta(short_put_tickers, 'P', params["target_put_delta"],trading_class=params['trading_class']).contract.strike
