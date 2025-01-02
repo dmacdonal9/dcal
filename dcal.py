@@ -21,7 +21,7 @@ def get_symbol_params(symbol: str, strategy: str='fri'):
     return params
 
 
-def submit_double_calendar(symbol: str,
+def submit_double_calendar(und_contract,
                            short_put_strike: float, short_call_strike: float,
                            long_put_strike: float, long_call_strike: float,
                            short_put_expiry_date: str, long_put_expiry_date: str,
@@ -30,53 +30,36 @@ def submit_double_calendar(symbol: str,
                            strategy: str = 'fri'):
 
     try:
-        # Retrieve parameters for the symbol and strategy
-        params = get_symbol_params(symbol,strategy=strategy)
-        exchange = params["exchange"]
+        # Retrieve parameters for the strategy
+        params = get_symbol_params(und_contract.symbol, strategy=strategy)
         opt_exchange = params["opt_exchange"]
         quantity = params["quantity"]
         strategy_tag = params["strategy_tag"]
 
-        print(f"Preparing Double Calendar Spread for {symbol} ")
+        print(f"Preparing Double Calendar Spread for {und_contract.symbol} ")
         print(f"  Short Call Strike: {short_call_strike}, Short Put Strike: {short_put_strike}")
         print(f"  Long Call Strike: {long_call_strike}, Long Put Strike: {long_put_strike}")
         print(f"  Short Put Expiry: {short_put_expiry_date}, Long Put Expiry: {long_put_expiry_date}")
         print(f"  Short Call Expiry: {short_call_expiry_date}, Long Call Expiry: {long_call_expiry_date}")
         print(f"  Exchange: {opt_exchange}, Quantity: {quantity}")
 
-        if params["sec_type"] == 'FUT':
-            fut_date = get_front_month_contract_date(symbol, params["exchange"], params["mult"],
-                                                     calculate_expiry_date(params["short_expiry_days"]))
-        else:
-            fut_date=''
-
-        # Qualify the underlying contract
-        und_contract = qualify_contract(
-            symbol=symbol,
-            secType=params["sec_type"],
-            lastTradeDateOrContractMonth=fut_date,
-            exchange=exchange,
-            currency='USD',
-            tradingClass=params['trading_class']
-        )
-
         # Qualify contracts for each leg
         legs = [
-            qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT',
+            qualify_contract(symbol=und_contract.symbol, secType='FOP' if und_contract.secType == 'FUT' else 'OPT',
                              exchange=opt_exchange, right='C', strike=long_call_strike,
-                             lastTradeDateOrContractMonth=long_call_expiry_date,multiplier=und_contract.multiplier,
+                             lastTradeDateOrContractMonth=long_call_expiry_date, multiplier=und_contract.multiplier,
                              tradingClass=params['trading_class']),
-            qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT',
+            qualify_contract(symbol=und_contract.symbol, secType='FOP' if und_contract.secType == 'FUT' else 'OPT',
                              exchange=opt_exchange, right='C', strike=short_call_strike,
-                             lastTradeDateOrContractMonth=short_call_expiry_date,multiplier=und_contract.multiplier,
+                             lastTradeDateOrContractMonth=short_call_expiry_date, multiplier=und_contract.multiplier,
                              tradingClass=params['trading_class']),
-            qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT',
+            qualify_contract(symbol=und_contract.symbol, secType='FOP' if und_contract.secType == 'FUT' else 'OPT',
                              exchange=opt_exchange, right='P', strike=long_put_strike,
-                             lastTradeDateOrContractMonth=long_put_expiry_date,multiplier=und_contract.multiplier,
+                             lastTradeDateOrContractMonth=long_put_expiry_date, multiplier=und_contract.multiplier,
                              tradingClass=params['trading_class']),
-            qualify_contract(symbol=symbol, secType='FOP' if und_contract.secType=='FUT' else 'OPT',
+            qualify_contract(symbol=und_contract.symbol, secType='FOP' if und_contract.secType == 'FUT' else 'OPT',
                              exchange=opt_exchange, right='P', strike=short_put_strike,
-                             lastTradeDateOrContractMonth=short_put_expiry_date,multiplier=und_contract.multiplier,
+                             lastTradeDateOrContractMonth=short_put_expiry_date, multiplier=und_contract.multiplier,
                              tradingClass=params['trading_class']),
         ]
 
@@ -88,7 +71,7 @@ def submit_double_calendar(symbol: str,
         bag_contract = create_bag(und_contract, legs, leg_actions, ratios)
         bag_contract.exchange = 'SMART'
 
-        logger.info(f"Combo contract created for {symbol}:")
+        logger.info(f"Combo contract created for {und_contract.symbol}:")
         logger.info(f"  Legs: {len(legs)}")
 
         # Submit an adaptive market order for the combo
@@ -102,12 +85,12 @@ def submit_double_calendar(symbol: str,
         )
 
         if not trade:
-            logger.error(f"Failed to submit Double Calendar order for {symbol}.")
+            logger.error(f"Failed to submit Double Calendar order for {und_contract.symbol}.")
             return None
 
         logger.info(f"Double Calendar Spread submitted successfully. Order ID: {trade.order.orderId}")
         return trade
 
     except Exception as e:
-        logger.exception(f"Error submitting Double Calendar Spread order for {symbol}: {e}")
+        logger.exception(f"Error submitting Double Calendar Spread order for {und_contract.symbol}: {e}")
         return None

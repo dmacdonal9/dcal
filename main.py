@@ -1,8 +1,11 @@
+# Enhanced Debugging Implementation
+
 import logging
 from dcal import submit_double_calendar
 from ibstrat.market_data import get_current_mid_price
 from ibstrat.qualify import qualify_contract, get_front_month_contract_date
 from ibstrat.ib_instance import connect_to_ib
+from ibstrat.positions import check_positions
 import cfg
 from ibstrat.chain import fetch_option_chain
 from ibstrat.options import find_option_by_target_delta
@@ -13,7 +16,6 @@ from ibstrat.dteutil import calculate_expiry_date
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     handlers=[logging.StreamHandler()])
-
 logger = logging.getLogger('DC')
 logging.getLogger('ib_async').setLevel(logging.CRITICAL)
 
@@ -26,8 +28,10 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
         if params["sec_type"] == 'FUT':
             fut_date = get_front_month_contract_date(symbol, params["exchange"], params["mult"],
                                                      calculate_expiry_date(params["long_expiry_days"]))
+            logger.debug(f"Front month contract date for {symbol}: {fut_date}")
         else:
             fut_date = ''
+            logger.debug(f"No front month date required for {symbol}, secType: {params['sec_type']}")
 
         und_contract = qualify_contract(
             symbol=symbol,
@@ -36,6 +40,7 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
             exchange=params["exchange"],
             currency='USD'
         )
+        logger.debug(f"Qualified underlying contract: {und_contract}")
 
         # Fetch the current market mid-price
         current_mid = get_current_mid_price(und_contract)
@@ -46,8 +51,11 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
         short_call_expiry_date = calculate_expiry_date(params["short_call_expiry_days"])
         long_put_expiry_date = calculate_expiry_date(params["long_put_expiry_days"])
         long_call_expiry_date = calculate_expiry_date(params["long_call_expiry_days"])
+        logger.debug(f"Expiry dates - Short Put: {short_put_expiry_date}, Long Put: {long_put_expiry_date}, "
+                     f"Short Call: {short_call_expiry_date}, Long Call: {long_call_expiry_date}")
 
         # Fetch option chain and find strikes
+        logger.debug(f"Fetching option chains for {symbol}")
         opt_exchange = params["opt_exchange"]
         short_put_tickers = fetch_option_chain(und_contract, opt_exchange, short_put_expiry_date, current_mid,
                                                trading_class=params['trading_class'])
@@ -65,6 +73,7 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
             long_call_tickers = fetch_option_chain(und_contract, opt_exchange, long_call_expiry_date, current_mid,
                                                    trading_class=params['trading_class'])
 
+        logger.debug(f"Option chains fetched. Calculating strikes...")
         short_call_strike = find_option_by_target_delta(short_call_tickers, 'C', params["target_call_delta"],
                                                         trading_class=params['trading_class']).contract.strike
         short_put_strike = find_option_by_target_delta(short_put_tickers, 'P', params["target_put_delta"],
@@ -74,9 +83,28 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
         long_put_strike = find_option_by_target_delta(long_put_tickers, 'P', params["target_put_delta"],
                                                       trading_class=params['trading_class']).contract.strike
 
+        logger.debug(f"Calculated strikes - Short Call: {short_call_strike}, Short Put: {short_put_strike}, "
+                     f"Long Call: {long_call_strike}, Long Put: {long_put_strike}")
+
+        # Prepare position check list
+        pos_check_list = [
+            {'strike': short_put_strike, 'right': 'P', 'expiry': short_put_expiry_date, 'position_type': None},
+            {'strike': short_call_strike, 'right': 'C', 'expiry': short_call_expiry_date, 'position_type': None},
+            {'strike': long_put_strike, 'right': 'P', 'expiry': long_put_expiry_date, 'position_type': None},
+            {'strike': long_call_strike, 'right': 'C', 'expiry': short_call_expiry_date, 'position_type': None},
+        ]
+        logger.debug(f"Position check list: {pos_check_list}")
+
+        # Check existing positions
+        existing_pos_open = check_positions(symbol, pos_check_list)
+        if existing_pos_open:
+            logger.warning(f"We have potential collisions on strikes, aborting trade")
+            return None
+
         # Submit the trade
+        logger.info(f"Submitting Double Calendar trade for {symbol}")
         trade = submit_double_calendar(
-            symbol=symbol,
+            und_contract=und_contract,
             short_put_strike=short_put_strike,
             short_call_strike=short_call_strike,
             long_put_strike=long_put_strike,
@@ -87,7 +115,7 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
             long_call_expiry_date=long_call_expiry_date,
             is_live=is_live
         )
-        logger.info(trade)
+        logger.info(f"Trade submission result: {trade}")
     except Exception as e:
         logger.exception(f"Error during trade submission for {symbol}: {e}")
 
