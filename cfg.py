@@ -1,6 +1,6 @@
 # Default configuration (live trading)
 fri_dcal_tag = 'FDC'
-fri_dc_symbols = ['SPX','NDX']
+fri_dc_symbols = ['SPX','NDX','RUT']
 mon_dcal_tag = 'MDC'
 mon_dc_symbols = ['SPX','NDX']
 
