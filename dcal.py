@@ -5,17 +5,15 @@ from ibstrat.orders import create_bag
 from ibstrat.adaptive import submit_adaptive_order
 import cfg
 
-
-# Configure logging
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    handlers=[logging.StreamHandler()])
 logger = logging.getLogger('DoubleCalendar')
 
 
-def get_symbol_params(symbol: str):
+def get_symbol_params(symbol: str, strategy: str='fri'):
 
-    params = cfg.fri_dc_params.get(symbol)
+    if strategy == 'fri':
+        params = cfg.fri_dc_params.get(symbol)
+    else:
+        params = cfg.mon_dc_params.get(symbol)
 
     if not params:
         raise ValueError(f"Configuration parameters for symbol {symbol} not found in cfg")
@@ -28,14 +26,16 @@ def submit_double_calendar(symbol: str,
                            long_put_strike: float, long_call_strike: float,
                            short_put_expiry_date: str, long_put_expiry_date: str,
                            short_call_expiry_date: str, long_call_expiry_date: str,
-                           is_live: bool = False):
+                           is_live: bool = False,
+                           strategy: str = 'fri'):
 
     try:
         # Retrieve parameters for the symbol and strategy
-        params = get_symbol_params(symbol)
+        params = get_symbol_params(symbol,strategy=strategy)
         exchange = params["exchange"]
         opt_exchange = params["opt_exchange"]
         quantity = params["quantity"]
+        strategy_tag = params["strategy_tag"]
 
         print(f"Preparing Double Calendar Spread for {symbol} ")
         print(f"  Short Call Strike: {short_call_strike}, Short Put Strike: {short_put_strike}")
@@ -98,7 +98,7 @@ def submit_double_calendar(symbol: str,
             action='BUY',
             is_live=is_live,
             quantity=quantity,
-            order_ref=cfg.weekly_dcal_tag
+            order_ref=strategy_tag
         )
 
         if not trade:
