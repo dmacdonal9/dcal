@@ -36,9 +36,9 @@ dc_params = {
         "sec_type": 'IND',
         "trading_class": 'NDXP',
         "mult": '100',
-        "target_put_delta": 25,
-        "target_call_delta": 15,
-        "short_expiry_days": 3,
+        "target_put_delta": 20,
+        "target_call_delta": 20,
+        "short_expiry_days": 5,
         "long_expiry_days": 7,
         },
     'RUT':
