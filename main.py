@@ -1,5 +1,3 @@
-# Enhanced Debugging Implementation
-
 import logging
 from dcal import submit_double_calendar
 from ibstrat.market_data import get_current_mid_price
@@ -13,12 +11,20 @@ import argparse
 from ibstrat.dteutil import calculate_expiry_date
 
 # Configure logging
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     handlers=[logging.StreamHandler()])
 logger = logging.getLogger('DC')
-logging.getLogger('ib_async').setLevel(logging.CRITICAL)
 
+logging.getLogger("ib_async").setLevel(logging.WARNING)
+logging.getLogger("ibstrat.indicators").setLevel(logging.ERROR)
+logging.getLogger("ibstrat.ib_instance").setLevel(logging.ERROR)
+logging.getLogger("ibstrat.dteutil").setLevel(logging.ERROR)
+logging.getLogger("ibstrat.qualify").setLevel(logging.ERROR)
+logging.getLogger("ibstrat.market_data").setLevel(logging.ERROR)
+logging.getLogger("ibstrat.options").setLevel(logging.ERROR)   # Errors only for ib_instance
+logging.getLogger("ibstrat.chain").setLevel(logging.ERROR)   # Errors only for ib_instance
+logging.getLogger("ibstrat.orders").setLevel(logging.DEBUG)   # Errors only for ib_instance
 
 def open_double_calendar(symbol: str, params: dict, is_live: bool):
     logger.info(f"Starting Double Calendar Trade Submission for {symbol}")
@@ -27,7 +33,7 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
         # Qualify the underlying contract
         if params["sec_type"] == 'FUT':
             fut_date = get_front_month_contract_date(symbol, params["exchange"], params["mult"],
-                                                     calculate_expiry_date(params["long_expiry_days"]))
+                                                     calculate_expiry_date(params["long_call_expiry_days"]))
             logger.debug(f"Front month contract date for {symbol}: {fut_date}")
         else:
             fut_date = ''
