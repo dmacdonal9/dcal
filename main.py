@@ -16,18 +16,18 @@ logging.basicConfig(level=logging.DEBUG,
                     handlers=[logging.StreamHandler()])
 logger = logging.getLogger('DC')
 
-logging.getLogger("ib_async").setLevel(logging.WARNING)
+logging.getLogger("ib_async").setLevel(logging.CRITICAL)
 logging.getLogger("ibstrat.indicators").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.ib_instance").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.dteutil").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.qualify").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.market_data").setLevel(logging.ERROR)
-logging.getLogger("ibstrat.options").setLevel(logging.ERROR)   # Errors only for ib_instance
-logging.getLogger("ibstrat.chain").setLevel(logging.ERROR)   # Errors only for ib_instance
-logging.getLogger("ibstrat.orders").setLevel(logging.DEBUG)   # Errors only for ib_instance
+logging.getLogger("ibstrat.options").setLevel(logging.ERROR)
+logging.getLogger("ibstrat.chain").setLevel(logging.ERROR)
+logging.getLogger("ibstrat.orders").setLevel(logging.DEBUG)
 
 def open_double_calendar(symbol: str, params: dict, is_live: bool):
-    logger.info(f"Starting Double Calendar Trade Submission for {symbol}")
+    logger.info(f"Starting Double Calendar Trade Submission for {symbol} with strategy tag {params['strategy_tag']}")
 
     try:
         # Qualify the underlying contract
@@ -97,7 +97,7 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
             {'strike': short_put_strike, 'right': 'P', 'expiry': short_put_expiry_date, 'position_type': None},
             {'strike': short_call_strike, 'right': 'C', 'expiry': short_call_expiry_date, 'position_type': None},
             {'strike': long_put_strike, 'right': 'P', 'expiry': long_put_expiry_date, 'position_type': None},
-            {'strike': long_call_strike, 'right': 'C', 'expiry': short_call_expiry_date, 'position_type': None},
+            {'strike': long_call_strike, 'right': 'C', 'expiry': long_call_expiry_date, 'position_type': None},
         ]
         logger.debug(f"Position check list: {pos_check_list}")
 
@@ -119,7 +119,8 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
             long_put_expiry_date=long_put_expiry_date,
             short_call_expiry_date=short_call_expiry_date,
             long_call_expiry_date=long_call_expiry_date,
-            is_live=is_live
+            is_live=is_live,
+            strategy_params=params
         )
         logger.info(f"Trade submission result: {trade}")
     except Exception as e:
@@ -169,11 +170,14 @@ def main():
 
     # Execute the selected action
     for symbol in symbols:
-        params = strategy.get(symbol)
-        if not params:
-            logger.error(f"Parameters for {symbol} not found in strategy configuration.")
+        strategies = strategy.get(symbol)
+        if not strategies:
+            logger.error(f"No strategies found for {symbol} in configuration.")
             continue
-        open_double_calendar(symbol, params, args.live)
+
+        for params in strategies:
+            logger.info(f"Processing strategy for {symbol} with strategy tag {params['strategy_tag']}")
+            open_double_calendar(symbol, params, live_orders)
 
 
 if __name__ == "__main__":

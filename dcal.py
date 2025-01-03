@@ -6,37 +6,24 @@ from ibstrat.market_data import get_combo_prices
 from ibstrat.ticksize import get_tick_size, adjust_to_tick_size
 import cfg
 
-logger = logging.getLogger('DoubleCalendar')
-
-
-def get_symbol_params(symbol: str, strategy: str='fri'):
-
-    if strategy == 'fri':
-        params = cfg.fri_dc_params.get(symbol)
-    else:
-        params = cfg.mon_dc_params.get(symbol)
-
-    if not params:
-        raise ValueError(f"Configuration parameters for symbol {symbol} not found in cfg")
-
-    return params
-
+logger = logging.getLogger('DC')
 
 def submit_double_calendar(und_contract,
                            short_put_strike: float, short_call_strike: float,
                            long_put_strike: float, long_call_strike: float,
                            short_put_expiry_date: str, long_put_expiry_date: str,
                            short_call_expiry_date: str, long_call_expiry_date: str,
-                           is_live: bool = False,
-                           strategy: str = 'fri'):
+                           is_live: bool,
+                           strategy_params: dict):
+    print(f"submit_double_calendar, params are: {strategy_params}")
     try:
-        # Retrieve parameters for the strategy
-        params = get_symbol_params(und_contract.symbol, strategy=strategy)
-        opt_exchange = params["opt_exchange"]
-        quantity = params["quantity"]
-        strategy_tag = params["strategy_tag"]
+        # Extract parameters from the strategy configuration
+        opt_exchange = strategy_params["opt_exchange"]
+        quantity = strategy_params["quantity"]
+        strategy_tag = strategy_params["strategy_tag"]
+        trading_class = strategy_params.get("trading_class")
 
-        print(f"Preparing Double Calendar Spread for {und_contract.symbol}")
+        print(f"Preparing Double Calendar Spread for {und_contract.symbol} with strategy {strategy_tag}")
         print(f"  Short Call Strike: {short_call_strike}, Short Put Strike: {short_put_strike}")
         print(f"  Long Call Strike: {long_call_strike}, Long Put Strike: {long_put_strike}")
         print(f"  Short Put Expiry: {short_put_expiry_date}, Long Put Expiry: {long_put_expiry_date}")
@@ -48,19 +35,19 @@ def submit_double_calendar(und_contract,
             qualify_contract(symbol=und_contract.symbol, secType='FOP' if und_contract.secType == 'FUT' else 'OPT',
                              exchange=opt_exchange, right='C', strike=long_call_strike,
                              lastTradeDateOrContractMonth=long_call_expiry_date, multiplier=und_contract.multiplier,
-                             tradingClass=params['trading_class']),
+                             tradingClass=trading_class),
             qualify_contract(symbol=und_contract.symbol, secType='FOP' if und_contract.secType == 'FUT' else 'OPT',
                              exchange=opt_exchange, right='C', strike=short_call_strike,
                              lastTradeDateOrContractMonth=short_call_expiry_date, multiplier=und_contract.multiplier,
-                             tradingClass=params['trading_class']),
+                             tradingClass=trading_class),
             qualify_contract(symbol=und_contract.symbol, secType='FOP' if und_contract.secType == 'FUT' else 'OPT',
                              exchange=opt_exchange, right='P', strike=long_put_strike,
                              lastTradeDateOrContractMonth=long_put_expiry_date, multiplier=und_contract.multiplier,
-                             tradingClass=params['trading_class']),
+                             tradingClass=trading_class),
             qualify_contract(symbol=und_contract.symbol, secType='FOP' if und_contract.secType == 'FUT' else 'OPT',
                              exchange=opt_exchange, right='P', strike=short_put_strike,
                              lastTradeDateOrContractMonth=short_put_expiry_date, multiplier=und_contract.multiplier,
-                             tradingClass=params['trading_class']),
+                             tradingClass=trading_class),
         ]
 
         # Define actions and ratios for the legs
@@ -91,7 +78,7 @@ def submit_double_calendar(und_contract,
 
             # Submit a limit order using the mid price less 1 tick
             contract_tick = get_tick_size(und_contract.symbol, mid)
-            order_limit_price = adjust_to_tick_size(mid,contract_tick) - contract_tick
+            order_limit_price = adjust_to_tick_size(mid, contract_tick) - contract_tick
             logger.debug(f"Limit order price adjusted from {mid} to {order_limit_price} for {und_contract.symbol}")
             trade = submit_limit_order(
                 order_contract=bag_contract,
