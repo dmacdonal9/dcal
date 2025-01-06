@@ -1,6 +1,7 @@
 # Default configuration (live trading)
 fri_dc_symbols = ['SPX', 'NDX', 'RUT']
 mon_dc_symbols = ['SPX', 'NDX']
+wed_dc_symbols = ['SPX', 'NDX']
 
 # IBKR Connection Parameters
 ib_host = '127.0.0.1'
@@ -145,5 +146,38 @@ mon_dc_params = {
         "short_call_expiry_days": 4,
         "long_put_expiry_days": 2,
         "long_call_expiry_days": 7,
+    },
+}
+
+wed_dc_params = {
+    'NDX': {
+        "exchange": 'NASDAQ',
+        "opt_exchange": 'ISE',
+        "sec_type": 'IND',
+        "trading_class": 'NDXP',
+        "mult": '100',
+        "strategy_tag": 'WDC78',
+        "quantity": 1,
+        "target_put_delta": 50,
+        "target_call_delta": 12,
+        "short_put_expiry_days": 7,
+        "short_call_expiry_days": 8,
+        "long_put_expiry_days": 7,
+        "long_call_expiry_days": 8,
+    },
+    'SPX': {
+        "exchange": 'CBOE',
+        "opt_exchange": 'CBOE',
+        "sec_type": 'IND',
+        "trading_class": 'SPXW',
+        "mult": '100',
+        "quantity": 1,
+        "strategy_tag": 'WDC78',
+        "target_put_delta": 50,
+        "target_call_delta": 12,
+        "short_put_expiry_days": 7,
+        "short_call_expiry_days": 8,
+        "long_put_expiry_days": 7,
+        "long_call_expiry_days": 8,
     },
 }

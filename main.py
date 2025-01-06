@@ -131,8 +131,9 @@ def main():
     parser = argparse.ArgumentParser(description="Process double calendar options strategies.")
     parser.add_argument('-l', '--live', action='store_true', help="Use live orders?")
     parser.add_argument('-t', '--test', action='store_true', help="Use test TWS configuration.")
-    parser.add_argument('-f', '--friday', action='store_true', help="Submit Friday Double Calendar using fri config.")
-    parser.add_argument('-m', '--monday', action='store_true', help="Submit Monday Double Calendar using mon config.")
+    parser.add_argument('-m', '--monday', action='store_true', help="Submit Mon Double Calendar using mon config.")
+    parser.add_argument('-w', '--wednesday', action='store_true', help="Submit Wed Double Calendar using wed config.")
+    parser.add_argument('-f', '--friday', action='store_true', help="Submit Fri Double Calendar using fri config.")
 
     args = parser.parse_args()
 
@@ -150,6 +151,10 @@ def main():
         symbols = cfg.mon_dc_symbols
         strategy = cfg.mon_dc_params
         logger.info(f"Running Monday DC")
+    elif args.wednesday:
+        symbols = cfg.wed_dc_symbols
+        strategy = cfg.wed_dc_params
+        logger.info(f"Running Wednesday DC")
     else:
         logger.error("You must specify either -f (Friday config) or -m (Monday config).")
         return
