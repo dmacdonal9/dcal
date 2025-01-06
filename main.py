@@ -6,7 +6,7 @@ from ibstrat.ib_instance import connect_to_ib
 from ibstrat.positions import check_positions
 import cfg
 from ibstrat.chain import fetch_option_chain
-from ibstrat.options import find_option_by_target_delta
+from ibstrat.options import find_option_by_target_delta,find_option_by_target_strike
 import argparse
 from ibstrat.dteutil import calculate_expiry_date
 
@@ -84,10 +84,19 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
                                                         trading_class=params['trading_class']).contract.strike
         short_put_strike = find_option_by_target_delta(short_put_tickers, 'P', params["target_put_delta"],
                                                        trading_class=params['trading_class']).contract.strike
-        long_call_strike = find_option_by_target_delta(long_call_tickers, 'C', params["target_call_delta"],
-                                                       trading_class=params['trading_class']).contract.strike
-        long_put_strike = find_option_by_target_delta(long_put_tickers, 'P', params["target_put_delta"],
-                                                      trading_class=params['trading_class']).contract.strike
+        long_call_strike = find_option_by_target_strike(contract=und_contract,
+                                                        right='C',
+                                                        exchange=params["exchange"],
+                                                        expiry=long_call_expiry_date,
+                                                        target_strike=short_call_strike,
+                                                        trading_class=params['trading_class']).strike
+
+        long_put_strike = find_option_by_target_strike(contract=und_contract,
+                                                        right='P',
+                                                        exchange=params["exchange"],
+                                                        expiry=long_put_expiry_date,
+                                                        target_strike=short_put_strike,
+                                                        trading_class=params['trading_class']).strike
 
         logger.debug(f"Calculated strikes - Short Call: {short_call_strike}, Short Put: {short_put_strike}, "
                      f"Long Call: {long_call_strike}, Long Put: {long_put_strike}")
