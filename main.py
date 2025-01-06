@@ -71,32 +71,32 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
             short_call_tickers = fetch_option_chain(und_contract, opt_exchange, short_call_expiry_date, current_mid,
                                                     trading_class=params['trading_class'])
 
-        long_put_tickers = fetch_option_chain(und_contract, opt_exchange, long_put_expiry_date, current_mid,
-                                              trading_class=params['trading_class'])
-        if long_put_expiry_date == long_call_expiry_date:
-            long_call_tickers = long_put_tickers
-        else:
-            long_call_tickers = fetch_option_chain(und_contract, opt_exchange, long_call_expiry_date, current_mid,
-                                                   trading_class=params['trading_class'])
-
         logger.debug(f"Option chains fetched. Calculating strikes...")
         short_call_strike = find_option_by_target_delta(short_call_tickers, 'C', params["target_call_delta"],
                                                         trading_class=params['trading_class']).contract.strike
+        logger.debug(f"short call found: {short_call_strike}")
+
         short_put_strike = find_option_by_target_delta(short_put_tickers, 'P', params["target_put_delta"],
                                                        trading_class=params['trading_class']).contract.strike
-        long_call_strike = find_option_by_target_strike(contract=und_contract,
+        logger.debug(f"short put found: {short_put_strike}")
+
+        long_call = find_option_by_target_strike(contract=und_contract,
                                                         right='C',
-                                                        exchange=params["exchange"],
+                                                        exchange=params["opt_exchange"],
                                                         expiry=long_call_expiry_date,
                                                         target_strike=short_call_strike,
-                                                        trading_class=params['trading_class']).strike
+                                                        trading_class=params['trading_class'])
+        logger.debug(f"long call found: {long_call.strike}")
+        long_call_strike = long_call.strike
 
-        long_put_strike = find_option_by_target_strike(contract=und_contract,
+        long_put = find_option_by_target_strike(contract=und_contract,
                                                         right='P',
-                                                        exchange=params["exchange"],
+                                                        exchange=params["opt_exchange"],
                                                         expiry=long_put_expiry_date,
                                                         target_strike=short_put_strike,
-                                                        trading_class=params['trading_class']).strike
+                                                        trading_class=params['trading_class'])
+        logger.debug(f"long put found: {long_put.strike}")
+        long_put_strike = long_put.strike
 
         logger.debug(f"Calculated strikes - Short Call: {short_call_strike}, Short Put: {short_put_strike}, "
                      f"Long Call: {long_call_strike}, Long Put: {long_put_strike}")

@@ -1,6 +1,6 @@
 # Default configuration (live trading)
 fri_dc_symbols = ['SPX', 'NDX', 'RUT']
-mon_dc_symbols = ['SPX', 'NDX']
+mon_dc_symbols = ['NDX']
 wed_dc_symbols = ['SPX', 'NDX']
 
 # IBKR Connection Parameters
@@ -116,37 +116,42 @@ fri_dc_params = {
 }
 
 # Monday Double Calendar Parameters (unchanged)
+
 mon_dc_params = {
-    'NDX': {
-        "exchange": 'NASDAQ',
-        "opt_exchange": 'ISE',
-        "sec_type": 'IND',
-        "trading_class": 'NDXP',
-        "mult": '100',
-        "strategy_tag": 'MDC2427',
-        "target_put_delta": 20,
-        "quantity": 1,
-        "target_call_delta": 18,
-        "short_put_expiry_days": 2,
-        "short_call_expiry_days": 4,
-        "long_put_expiry_days": 2,
-        "long_call_expiry_days": 7,
-    },
-    'SPX': {
-        "exchange": 'CBOE',
-        "opt_exchange": 'CBOE',
-        "sec_type": 'IND',
-        "trading_class": 'SPXW',
-        "mult": '100',
-        "quantity": 1,
-        "strategy_tag": 'MDC2427',
-        "target_put_delta": 20,
-        "target_call_delta": 18,
-        "short_put_expiry_days": 2,
-        "short_call_expiry_days": 4,
-        "long_put_expiry_days": 2,
-        "long_call_expiry_days": 7,
-    },
+    'NDX': [
+        {
+            "exchange": 'NASDAQ',
+            "opt_exchange": 'ISE',
+            "sec_type": 'IND',
+            "trading_class": 'NDXP',
+            "mult": '100',
+            "quantity": 1,
+            "strategy_tag": 'MDC2427',
+            "target_put_delta": 20,
+            "target_call_delta": 18,
+            "short_put_expiry_days": 2,
+            "short_call_expiry_days": 2,
+            "long_put_expiry_days": 4,
+            "long_call_expiry_days": 7,
+        }
+    ],
+    'SPX': [
+        {
+            "exchange": 'CBOE',
+            "opt_exchange": 'CBOE',
+            "sec_type": 'IND',
+            "trading_class": 'SPXW',
+            "mult": '100',
+            "quantity": 1,
+            "strategy_tag": 'MDC2427',
+            "target_put_delta": 20,
+            "target_call_delta": 18,
+            "short_put_expiry_days": 2,
+            "short_call_expiry_days": 2,
+            "long_put_expiry_days": 4,
+            "long_call_expiry_days": 7,
+        }
+    ],
 }
 
 wed_dc_params = {
