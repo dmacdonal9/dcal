@@ -1,6 +1,6 @@
 # Default configuration (live trading)
 fri_dc_symbols = ['SPX', 'NDX', 'RUT']
-mon_dc_symbols = ['NDX']
+mon_dc_symbols = ['SPX', 'NDX']
 wed_dc_symbols = ['SPX', 'NDX']
 
 # IBKR Connection Parameters
