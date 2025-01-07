@@ -75,7 +75,7 @@ def submit_double_calendar(und_contract,
                 quantity=quantity,
                 order_ref=strategy_tag
             )
-            if trade and submit_auto_close:
+            if trade and submit_auto_close and False: # temp patch, this timecondition doesn;t work as expected
                 if wait_for_order_fill(trade.order.orderId,60):
                     #submit close order
                     time_condition = f"{short_put_expiry_date} {cfg.dcal_close_time}"
