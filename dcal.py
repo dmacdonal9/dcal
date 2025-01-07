@@ -1,10 +1,12 @@
 import logging
 from ibstrat.qualify import qualify_contract
-from ibstrat.orders import create_bag, submit_limit_order, adjustOrders
+from ibstrat.orders import create_bag, submit_limit_order, adjustOrders, submit_order_at_time, wait_for_order_fill
 from ibstrat.adaptive import submit_adaptive_order
 from ibstrat.market_data import get_combo_prices
 from ibstrat.ticksize import get_tick_size, adjust_to_tick_size
 import cfg
+from ib_async import Order, Contract
+from ib_insync import ib
 
 logger = logging.getLogger('DC')
 
@@ -22,6 +24,7 @@ def submit_double_calendar(und_contract,
         quantity = strategy_params["quantity"]
         strategy_tag = strategy_params["strategy_tag"]
         trading_class = strategy_params.get("trading_class")
+        submit_auto_close = strategy_params.get("submit_auto_close")
 
         print(f"Preparing Double Calendar Spread for {und_contract.symbol} with strategy {strategy_tag}")
         print(f"  Short Call Strike: {short_call_strike}, Short Put Strike: {short_put_strike}")
@@ -63,6 +66,7 @@ def submit_double_calendar(und_contract,
         # Handle futures and options differently
         if und_contract.secType != 'FUT':
             # Submit an adaptive market order for non-futures
+            logger.info(f"Submitting adaptive order for {und_contract.symbol}")
             trade = submit_adaptive_order(
                 order_contract=bag_contract,
                 order_type='MKT',
@@ -71,6 +75,22 @@ def submit_double_calendar(und_contract,
                 quantity=quantity,
                 order_ref=strategy_tag
             )
+            if trade and submit_auto_close:
+                if wait_for_order_fill(trade.order.orderId,60):
+                    #submit close order
+                    time_condition = f"{short_put_expiry_date} {cfg.dcal_close_time}"
+                    logger.info(f"Submitting auto close order with time condition {time_condition}")
+                    auto_close_trade = submit_order_at_time(
+                        order_contract=bag_contract,
+                        limit_price=None,
+                        order_type='MKT',
+                        action='SELL',
+                        is_live=True,
+                        quantity=quantity,
+                        order_ref=strategy_tag,
+                        time_condition=time_condition
+                    )
+                    logger.debug(f"Submitted auto close order, status is {auto_close_trade}")
         else:
             # Get combo prices for futures
             bid, mid, ask = get_combo_prices([(legs[i], leg_actions[i], ratios[i]) for i in range(len(legs))])
@@ -92,6 +112,8 @@ def submit_double_calendar(und_contract,
             # Adjust orders if necessary
             adjustOrders([bag_contract.symbol])
 
+
+
         # Handle trade submission results
         if not trade:
             logger.error(f"Failed to submit Double Calendar order for {und_contract.symbol}.")
@@ -103,3 +125,4 @@ def submit_double_calendar(und_contract,
     except Exception as e:
         logger.exception(f"Error submitting Double Calendar Spread order for {und_contract.symbol}: {e}")
         return None
+

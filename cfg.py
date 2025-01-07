@@ -3,6 +3,8 @@ fri_dc_symbols = ['SPX', 'NDX', 'RUT']
 mon_dc_symbols = ['SPX', 'NDX']
 wed_dc_symbols = ['SPX', 'NDX']
 
+dcal_close_time = '16:00:00'
+
 # IBKR Connection Parameters
 ib_host = '127.0.0.1'
 ib_port = 7496  # Default live trading port
@@ -30,6 +32,7 @@ fri_dc_params = {
             "short_call_expiry_days": 5,
             "long_put_expiry_days": 7,
             "long_call_expiry_days": 7,
+            "submit_auto_close": True,
         },
         {
             "quantity": 1,
@@ -45,6 +48,7 @@ fri_dc_params = {
             "short_call_expiry_days": 3,
             "long_put_expiry_days": 7,
             "long_call_expiry_days": 7,
+            "submit_auto_close": True,
         },
     ],
     'NDX': [
@@ -62,6 +66,7 @@ fri_dc_params = {
             "short_call_expiry_days": 5,
             "long_put_expiry_days": 7,
             "long_call_expiry_days": 7,
+            "submit_auto_close": True,
         },
         {
             "quantity": 1,
@@ -77,6 +82,7 @@ fri_dc_params = {
             "short_call_expiry_days": 3,
             "long_put_expiry_days": 7,
             "long_call_expiry_days": 7,
+            "submit_auto_close": True,
         },
     ],
     'RUT': [
@@ -94,6 +100,7 @@ fri_dc_params = {
             "short_call_expiry_days": 5,
             "long_put_expiry_days": 21,
             "long_call_expiry_days": 21,
+            "submit_auto_close": True,
         },
     ],
     'ES': [
@@ -133,6 +140,7 @@ mon_dc_params = {
             "short_call_expiry_days": 2,
             "long_put_expiry_days": 4,
             "long_call_expiry_days": 7,
+            "submit_auto_close": True,
         }
     ],
     'SPX': [
@@ -150,6 +158,7 @@ mon_dc_params = {
             "short_call_expiry_days": 2,
             "long_put_expiry_days": 4,
             "long_call_expiry_days": 7,
+            "submit_auto_close": True,
         }
     ],
 }
@@ -169,6 +178,7 @@ wed_dc_params = {
         "short_call_expiry_days": 8,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 8,
+        "submit_auto_close": True,
     },
     'SPX': {
         "exchange": 'CBOE',
@@ -184,5 +194,6 @@ wed_dc_params = {
         "short_call_expiry_days": 8,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 8,
+        "submit_auto_close": True,
     },
 }
