@@ -2,7 +2,7 @@
 fri_dc_symbols = ['SPX', 'NDX', 'RUT']
 mon_dc_symbols = ['SPX', 'NDX']
 wed_dc_symbols = ['SPX', 'NDX']
-wed_dc_symbols = ['NDX']
+wed_dc_symbols = ['SPX']
 
 
 dcal_close_time = '16:00:00'
