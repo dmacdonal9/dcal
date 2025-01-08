@@ -5,6 +5,7 @@ from ibstrat.qualify import qualify_contract, get_front_month_contract_date
 from ibstrat.ib_instance import connect_to_ib
 from ibstrat.positions import check_positions
 import cfg
+import sys
 from ibstrat.chain import fetch_option_chain
 from ibstrat.options import find_option_by_target_delta,find_option_by_target_strike
 import argparse
@@ -53,6 +54,9 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
         logger.info(f"Current market price for {symbol}: {current_mid}")
 
         # Calculate expiry dates
+        logger.debug(f"short expiry days are set to: {params['short_put_expiry_days']} {params['short_call_expiry_days']} ")
+        logger.debug(f"long expiry days are set to: {params['long_put_expiry_days']} {params['long_call_expiry_days']} ")
+
         short_put_expiry_date = calculate_expiry_date(params["short_put_expiry_days"])
         short_call_expiry_date = calculate_expiry_date(params["short_call_expiry_days"])
         long_put_expiry_date = calculate_expiry_date(params["long_put_expiry_days"])
