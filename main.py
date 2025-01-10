@@ -23,7 +23,7 @@ logging.getLogger("ibstrat.ib_instance").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.dteutil").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.qualify").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.market_data").setLevel(logging.ERROR)
-logging.getLogger("ibstrat.options").setLevel(logging.DEBUG)
+logging.getLogger("ibstrat.options").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.chain").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.orders").setLevel(logging.ERROR)
 
