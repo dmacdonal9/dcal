@@ -1,6 +1,5 @@
 # Default configuration (live trading)
 fri_dc_symbols = ['SPX', 'QQQ']
-fri_dc_symbols = ['QQQ']
 mon_dc_symbols = ['SPX', 'QQQ']
 wed_dc_symbols = ['SPX', 'QQQ']
 
