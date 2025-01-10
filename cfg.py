@@ -1,5 +1,6 @@
 # Default configuration (live trading)
 fri_dc_symbols = ['SPX', 'NDX']
+fri_dc_symbols = ['NDX']
 mon_dc_symbols = ['SPX', 'NDX']
 wed_dc_symbols = ['SPX', 'NDX']
 
@@ -12,7 +13,7 @@ ib_port = 7496  # Default live trading port
 ib_clientid = 1  # Client ID for live trading
 
 # Testing configuration
-test_ib_host = 'dte'
+test_ib_host = '127.0.0.1'
 test_ib_port = 7500  # Port for test TWS
 test_ib_clientid = 2  # Client ID for test TWS
 
@@ -57,7 +58,7 @@ fri_dc_params = {
             "quantity": 1,
             "strategy_tag": 'FDC57',
             "exchange": 'NASDAQ',
-            "opt_exchange": 'ISE',
+            "opt_exchange": 'CBOE',
             "sec_type": 'IND',
             "trading_class": 'NDXP',
             "mult": '100',
@@ -73,7 +74,7 @@ fri_dc_params = {
             "quantity": 1,
             "strategy_tag": 'FDC37',
             "exchange": 'NASDAQ',
-            "opt_exchange": 'ISE',
+            "opt_exchange": 'CBOE',
             "sec_type": 'IND',
             "trading_class": 'NDXP',
             "mult": '100',

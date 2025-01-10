@@ -6,7 +6,7 @@ from ibstrat.ib_instance import connect_to_ib
 from ibstrat.positions import check_positions
 import cfg
 import sys
-from ibstrat.chain import fetch_option_chain
+from ibstrat.chain import fetch_option_chain,find_next_closest_expiry
 from ibstrat.options import find_option_by_target_delta,find_option_by_target_strike
 import argparse
 from ibstrat.dteutil import calculate_expiry_date
@@ -23,12 +23,14 @@ logging.getLogger("ibstrat.ib_instance").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.dteutil").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.qualify").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.market_data").setLevel(logging.ERROR)
-logging.getLogger("ibstrat.options").setLevel(logging.ERROR)
+logging.getLogger("ibstrat.options").setLevel(logging.DEBUG)
 logging.getLogger("ibstrat.chain").setLevel(logging.ERROR)
-logging.getLogger("ibstrat.orders").setLevel(logging.DEBUG)
+logging.getLogger("ibstrat.orders").setLevel(logging.ERROR)
 
 def open_double_calendar(symbol: str, params: dict, is_live: bool):
     logger.info(f"Starting Double Calendar Trade Submission for {symbol} with strategy tag {params['strategy_tag']}")
+
+    tr_class = params['trading_class']
 
     try:
         # Qualify the underlying contract
@@ -57,10 +59,19 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
         logger.debug(f"short expiry days are set to: {params['short_put_expiry_days']} {params['short_call_expiry_days']} ")
         logger.debug(f"long expiry days are set to: {params['long_put_expiry_days']} {params['long_call_expiry_days']} ")
 
-        short_put_expiry_date = calculate_expiry_date(params["short_put_expiry_days"])
-        short_call_expiry_date = calculate_expiry_date(params["short_call_expiry_days"])
-        long_put_expiry_date = calculate_expiry_date(params["long_put_expiry_days"])
-        long_call_expiry_date = calculate_expiry_date(params["long_call_expiry_days"])
+        short_put_expiry_date = find_next_closest_expiry(und_contract=und_contract,
+                                                         target_expiry=calculate_expiry_date(params["short_put_expiry_days"]),
+                                                         trading_class=tr_class)
+        short_call_expiry_date = find_next_closest_expiry(und_contract=und_contract,
+                                                         target_expiry=calculate_expiry_date(params["short_call_expiry_days"]),
+                                                         trading_class=tr_class)
+        long_put_expiry_date = find_next_closest_expiry(und_contract=und_contract,
+                                                         target_expiry=calculate_expiry_date(params["long_put_expiry_days"]),
+                                                         trading_class=tr_class)
+        long_call_expiry_date = find_next_closest_expiry(und_contract=und_contract,
+                                                         target_expiry=calculate_expiry_date(params["long_call_expiry_days"]),
+                                                         trading_class=tr_class)
+
         logger.debug(f"Expiry dates - Short Put: {short_put_expiry_date}, Long Put: {long_put_expiry_date}, "
                      f"Short Call: {short_call_expiry_date}, Long Call: {long_call_expiry_date}")
 
