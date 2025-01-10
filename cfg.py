@@ -1,8 +1,7 @@
 # Default configuration (live trading)
-fri_dc_symbols = ['SPX', 'NDX', 'RUT']
+fri_dc_symbols = ['SPX', 'NDX']
 mon_dc_symbols = ['SPX', 'NDX']
 wed_dc_symbols = ['SPX', 'NDX']
-wed_dc_symbols = ['SPX']
 
 
 dcal_close_time = '16:00:00'
