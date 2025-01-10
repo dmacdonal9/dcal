@@ -31,7 +31,7 @@ fri_dc_params = {
             "short_put_expiry_days": 5,
             "short_call_expiry_days": 5,
             "long_put_expiry_days": 7,
-            "long_call_expiry_days": 7,
+            "long_call_expiry_days": 10,
             "submit_auto_close": False,
         },
         {
@@ -65,7 +65,7 @@ fri_dc_params = {
             "short_put_expiry_days": 5,
             "short_call_expiry_days": 5,
             "long_put_expiry_days": 7,
-            "long_call_expiry_days": 7,
+            "long_call_expiry_days": 10,
             "submit_auto_close": False,
         },
         {
@@ -99,7 +99,7 @@ fri_dc_params = {
             "short_put_expiry_days": 5,
             "short_call_expiry_days": 5,
             "long_put_expiry_days": 7,
-            "long_call_expiry_days": 7,
+            "long_call_expiry_days": 10,
             "submit_auto_close": True,
         },
         {
@@ -151,7 +151,7 @@ fri_dc_params = {
             "short_put_expiry_days": 3,
             "short_call_expiry_days": 3,
             "long_put_expiry_days": 7,
-            "long_call_expiry_days": 7,
+            "long_call_expiry_days": 10,
         },
     ],
 }
