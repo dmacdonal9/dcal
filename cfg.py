@@ -3,7 +3,6 @@ fri_dc_symbols = ['SPX', 'QQQ']
 mon_dc_symbols = ['SPX', 'QQQ']
 wed_dc_symbols = ['SPX', 'QQQ']
 
-
 dcal_close_time = '16:00:00'
 
 # IBKR Connection Parameters
