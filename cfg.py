@@ -5,6 +5,8 @@ wed_dc_symbols = ['SPX', 'QQQ']
 
 dcal_close_time = '16:00:00'
 
+adaptive_priority = 'Patient'
+
 # IBKR Connection Parameters
 ib_host = '127.0.0.1'
 ib_port = 7496  # Default live trading port

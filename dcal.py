@@ -73,7 +73,8 @@ def submit_double_calendar(und_contract,
                 action='BUY',
                 is_live=is_live,
                 quantity=quantity,
-                order_ref=strategy_tag
+                order_ref=strategy_tag,
+                adaptive_priority=cfg.adaptive_priority
             )
             if trade and submit_auto_close and False: # temp patch, this timecondition doesn;t work as expected
                 if wait_for_order_fill(trade.order.orderId,60):
