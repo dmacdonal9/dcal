@@ -10,12 +10,12 @@ adaptive_priority = 'Patient'
 # IBKR Connection Parameters
 ib_host = '127.0.0.1'
 ib_port = 7496  # Default live trading port
-ib_clientid = 1  # Client ID for live trading
+ib_clientid = 3  # Client ID for live trading
 
 # Testing configuration
 test_ib_host = '127.0.0.1'
 test_ib_port = 7500  # Port for test TWS
-test_ib_clientid = 2  # Client ID for test TWS
+test_ib_clientid = 3  # Client ID for test TWS
 
 # Friday Double Calendar Parameters
 fri_dc_params = {
