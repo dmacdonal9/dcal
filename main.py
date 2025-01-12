@@ -3,7 +3,7 @@ from dcal import submit_double_calendar
 from ibstrat.market_data import get_current_mid_price
 from ibstrat.qualify import qualify_contract, get_front_month_contract_date
 from ibstrat.ib_instance import connect_to_ib
-from ibstrat.positions import check_positions
+from ibstrat.positions import load_positions, check_positions
 import cfg
 import sys
 from ibstrat.chain import fetch_option_chain,find_next_closest_expiry
@@ -196,6 +196,8 @@ def main():
     else:
         connect_to_ib(cfg.ib_host, cfg.ib_port, cfg.ib_clientid, 2)
         logger.info("Connected to live TWS configuration.")
+
+    load_positions()
 
     # Execute the selected action
     for symbol in symbols:

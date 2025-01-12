@@ -2,6 +2,7 @@ import logging
 from ibstrat.qualify import qualify_contract
 from ibstrat.orders import create_bag, submit_limit_order, adjustOrders, submit_order_at_time, wait_for_order_fill
 from ibstrat.adaptive import submit_adaptive_order
+from ibstrat.positions import check_positions
 from ibstrat.market_data import get_combo_prices
 from ibstrat.ticksize import get_tick_size, adjust_to_tick_size
 import cfg
@@ -32,6 +33,17 @@ def submit_double_calendar(und_contract,
         print(f"  Short Put Expiry: {short_put_expiry_date}, Long Put Expiry: {long_put_expiry_date}")
         print(f"  Short Call Expiry: {short_call_expiry_date}, Long Call Expiry: {long_call_expiry_date}")
         print(f"  Exchange: {opt_exchange}, Quantity: {quantity}")
+
+        # Check existing positions
+        pos_check_list = [
+            {'strike': short_put_strike, 'right': 'P', 'expiry': short_put_expiry_date, 'position_type': 'long'},
+            {'strike': short_call_strike, 'right': 'C', 'expiry': short_call_expiry_date, 'position_type': 'long'},
+            {'strike': long_put_strike, 'right': 'P', 'expiry': long_put_expiry_date, 'position_type': 'short'},
+            {'strike': long_call_strike, 'right': 'C', 'expiry': long_call_expiry_date, 'position_type': 'short'},
+        ]
+        if check_positions(und_contract.symbol, pos_check_list):
+            logger.warning(f"Collisions detected on strikes, aborting trade.")
+            return None
 
         # Qualify contracts for each leg
         legs = [
