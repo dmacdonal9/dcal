@@ -1,7 +1,9 @@
 import logging
 from ibstrat.qualify import qualify_contract
 from ibstrat.orders import create_bag, submit_limit_order, adjustOrders, submit_order_at_time, wait_for_order_fill
+from ibstrat.executions import get_fill_details
 from ibstrat.adaptive import submit_adaptive_order
+from ibstrat.gsheet import log_trade
 from ibstrat.positions import check_positions
 from ibstrat.market_data import get_combo_prices
 from ibstrat.ticksize import get_tick_size, adjust_to_tick_size
@@ -75,6 +77,9 @@ def submit_double_calendar(und_contract,
 
         logger.info(f"Combo contract created for {und_contract.symbol} with {len(legs)} legs.")
 
+        bid, mid, ask = get_combo_prices([(legs[i], leg_actions[i], ratios[i]) for i in range(len(legs))])
+        logger.info(f"Combo prices: Bid: {bid}, Mid: {mid}, Ask: {ask}")
+
         # Handle futures and options differently
         if und_contract.secType != 'FUT':
             # Submit an adaptive market order for non-futures
@@ -88,27 +93,7 @@ def submit_double_calendar(und_contract,
                 order_ref=strategy_tag,
                 adaptive_priority=cfg.adaptive_priority
             )
-            if trade and submit_auto_close and False: # temp patch, this timecondition doesn;t work as expected
-                if wait_for_order_fill(trade.order.orderId,60):
-                    #submit close order
-                    time_condition = f"{short_put_expiry_date} {cfg.dcal_close_time}"
-                    logger.info(f"Submitting auto close order with time condition {time_condition}")
-                    auto_close_trade = submit_order_at_time(
-                        order_contract=bag_contract,
-                        limit_price=None,
-                        order_type='MKT',
-                        action='SELL',
-                        is_live=True,
-                        quantity=quantity,
-                        order_ref=strategy_tag,
-                        time_condition=time_condition
-                    )
-                    logger.debug(f"Submitted auto close order, status is {auto_close_trade}")
         else:
-            # Get combo prices for futures
-            bid, mid, ask = get_combo_prices([(legs[i], leg_actions[i], ratios[i]) for i in range(len(legs))])
-            logger.info(f"Combo prices: Bid: {bid}, Mid: {mid}, Ask: {ask}")
-
             # Submit a limit order using the mid price less 1 tick
             contract_tick = get_tick_size(und_contract.symbol, mid)
             order_limit_price = adjust_to_tick_size(mid, contract_tick) - contract_tick
@@ -123,9 +108,22 @@ def submit_double_calendar(und_contract,
             )
 
             # Adjust orders if necessary
-            adjustOrders([bag_contract.symbol])
+            if is_live:
+                adjustOrders([bag_contract.symbol])
 
+            fill = None
+            if trade and is_live:
+                if wait_for_order_fill(trade.order.orderId):
+                    fill = get_fill_details(trade.order.orderId)
+                    logger.debug(f"Fill details: {fill}")
 
+            if fill:
+                trade_detail = [ strategy_tag, und_contract.symbol, quantity, mid, fill['price'], fill['time'], fill['commission'] ]
+                log_results = log_trade(sheet_id=cfg.trade_log_sheet_id, values=trade_detail)
+                if not log_results:
+                    logger.warning(f"Error logging trade to google sheets")
+                else:
+                    logger.info(f"Trade logged to google sheets")
 
         # Handle trade submission results
         if not trade:

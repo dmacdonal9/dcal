@@ -6,6 +6,7 @@ wed_dc_symbols = ['SPX', 'QQQ']
 dcal_close_time = '16:00:00'
 
 adaptive_priority = 'Patient'
+trade_log_sheet_id = "1KnYcYCizbkLP3GHQfsdmoXoulOcwyw_FRWGedQpfflI"
 
 # IBKR Connection Parameters
 ib_host = '127.0.0.1'
