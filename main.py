@@ -118,10 +118,10 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
 
         # Prepare position check list
         pos_check_list = [
-            {'strike': short_put_strike, 'right': 'P', 'expiry': short_put_expiry_date, 'position_type': None},
-            {'strike': short_call_strike, 'right': 'C', 'expiry': short_call_expiry_date, 'position_type': None},
-            {'strike': long_put_strike, 'right': 'P', 'expiry': long_put_expiry_date, 'position_type': None},
-            {'strike': long_call_strike, 'right': 'C', 'expiry': long_call_expiry_date, 'position_type': None},
+            {'strike': short_put_strike, 'right': 'P', 'expiry': short_put_expiry_date, 'position_type': 'long'},
+            {'strike': short_call_strike, 'right': 'C', 'expiry': short_call_expiry_date, 'position_type': 'long'},
+            {'strike': long_put_strike, 'right': 'P', 'expiry': long_put_expiry_date, 'position_type': 'short'},
+            {'strike': long_call_strike, 'right': 'C', 'expiry': long_call_expiry_date, 'position_type': 'short'},
         ]
         logger.debug(f"Position check list: {pos_check_list}")
 
