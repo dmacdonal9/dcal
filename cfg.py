@@ -46,7 +46,7 @@ fri_dc_params = {
             "trading_class": 'SPXW',
             "mult": '100',
             "target_put_delta": 45,
-            "target_call_delta": 25,
+            "target_call_delta": 35,
             "short_put_expiry_days": 3,
             "short_call_expiry_days": 3,
             "long_put_expiry_days": 7,
