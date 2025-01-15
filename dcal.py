@@ -1,7 +1,6 @@
 import logging
 from ibstrat.qualify import qualify_contract
 from ibstrat.orders import create_bag, submit_limit_order, adjustOrders, submit_order_at_time, wait_for_order_fill
-from ibstrat.executions import get_fill_details
 from ibstrat.adaptive import submit_adaptive_order
 from ibstrat.gsheet import log_trade
 from ibstrat.positions import check_positions
@@ -27,7 +26,6 @@ def submit_double_calendar(und_contract,
         quantity = strategy_params["quantity"]
         strategy_tag = strategy_params["strategy_tag"]
         trading_class = strategy_params.get("trading_class")
-        submit_auto_close = strategy_params.get("submit_auto_close")
 
         print(f"Preparing Double Calendar Spread for {und_contract.symbol} with strategy {strategy_tag}")
         print(f"  Short Call Strike: {short_call_strike}, Short Put Strike: {short_put_strike}")
@@ -110,20 +108,6 @@ def submit_double_calendar(und_contract,
             # Adjust orders if necessary
             if is_live:
                 adjustOrders([bag_contract.symbol])
-
-            fill = None
-            if trade and is_live:
-                if wait_for_order_fill(trade.order.orderId):
-                    fill = get_fill_details(trade.order.orderId)
-                    logger.debug(f"Fill details: {fill}")
-
-            if fill:
-                trade_detail = [ strategy_tag, und_contract.symbol, quantity, mid, fill['price'], fill['time'], fill['commission'] ]
-                log_results = log_trade(sheet_id=cfg.trade_log_sheet_id, values=trade_detail)
-                if not log_results:
-                    logger.warning(f"Error logging trade to google sheets")
-                else:
-                    logger.info(f"Trade logged to google sheets")
 
         # Handle trade submission results
         if not trade:
