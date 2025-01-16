@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.DEBUG,
                     handlers=[logging.StreamHandler()])
 logger = logging.getLogger('DC')
 
-logging.getLogger("ib_async").setLevel(logging.CRITICAL)
+logging.getLogger("ib_async").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.indicators").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.ib_instance").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.dteutil").setLevel(logging.ERROR)
