@@ -1,7 +1,7 @@
 # Default configuration (live trading)
-fri_dc_symbols = ['SPX', 'QQQ']
-mon_dc_symbols = ['SPX', 'QQQ']
-wed_dc_symbols = ['SPX', 'QQQ']
+fri_dc_symbols = ['SPX', 'QQQ', 'NQ']
+mon_dc_symbols = ['SPX', 'QQQ', 'NQ']
+wed_dc_symbols = ['SPX', 'QQQ', 'NQ']
 
 dcal_close_time = '16:00:00'
 
@@ -88,6 +88,40 @@ fri_dc_params = {
             "submit_auto_close": True,
         },
     ],
+    'NQ': [
+        {
+            "quantity": 1,
+            "strategy_tag": 'FDC57',
+            "exchange": 'CME',
+            "opt_exchange": 'CME',
+            "sec_type": 'FUT',
+            "trading_class": '',
+            "mult": '20',
+            "target_put_delta": 20,
+            "target_call_delta": 20,
+            "short_put_expiry_days": 5,
+            "short_call_expiry_days": 5,
+            "long_put_expiry_days": 7,
+            "long_call_expiry_days": 10,
+            "submit_auto_close": False,
+        },
+        {
+            "quantity": 1,
+            "strategy_tag": 'FDC37',
+            "exchange": 'CME',
+            "opt_exchange": 'CME',
+            "sec_type": 'FUT',
+            "trading_class": '',
+            "mult": '20',
+            "target_put_delta": 45,
+            "target_call_delta": 25,
+            "short_put_expiry_days": 3,
+            "short_call_expiry_days": 3,
+            "long_put_expiry_days": 7,
+            "long_call_expiry_days": 7,
+            "submit_auto_close": True,
+        },
+    ],
     'NDX': [
         {
             "quantity": 1,
@@ -162,6 +196,24 @@ fri_dc_params = {
 # Monday Double Calendar Parameters (unchanged)
 
 mon_dc_params = {
+    'NQ': [
+        {
+            "exchange": 'CME',
+            "opt_exchange": 'CME',
+            "sec_type": 'FUT',
+            "trading_class": '',
+            "mult": '20',
+            "quantity": 1,
+            "strategy_tag": 'MDC2427',
+            "target_put_delta": 30,
+            "target_call_delta": 18,
+            "short_put_expiry_days": 2,
+            "short_call_expiry_days": 2,
+            "long_put_expiry_days": 4,
+            "long_call_expiry_days": 7,
+            "submit_auto_close": False,
+        }
+    ],
     'QQQ': [
         {
             "exchange": 'SMART',
@@ -201,6 +253,24 @@ mon_dc_params = {
 }
 
 wed_dc_params = {
+    'NQ': [
+        {
+            "exchange": 'NASDAQ',
+            "opt_exchange": 'CME',
+            "sec_type": 'FUT',
+            "trading_class": '',
+            "mult": '20',
+            "strategy_tag": 'WDC78',
+            "quantity": 1,
+            "target_put_delta": 50,
+            "target_call_delta": 12,
+            "short_put_expiry_days": 7,
+            "short_call_expiry_days": 7,
+            "long_put_expiry_days": 8,
+            "long_call_expiry_days": 8,
+            "submit_auto_close": True,
+        }
+    ],
     'QQQ': [
         {
             "exchange": 'NASDAQ',
