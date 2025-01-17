@@ -152,7 +152,6 @@ def submit_double_calendar(und_contract,
             logger.error(f"Failed to submit Double Calendar order for {und_contract.symbol}.")
             return None
 
-        logger.info(f"Double Calendar Spread submitted successfully. Order ID: {trade.order.orderId}")
         return trade
 
     except Exception as e:
