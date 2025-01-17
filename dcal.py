@@ -1,7 +1,8 @@
 import logging
 from ibstrat.qualify import qualify_contract
-from ibstrat.orders import create_bag, submit_limit_order, adjustOrders, submit_order_at_time, wait_for_order_fill
-from ibstrat.adaptive import submit_adaptive_order
+from ibstrat.orders import create_bag, submit_limit_order, adjustOrders, submit_order_at_time, wait_for_order_fill, \
+    submit_limit_order_with_pt
+from ibstrat.adaptive import submit_adaptive_order, submit_adaptive_order_with_pt
 from ibstrat.gsheet import log_trade
 from ibstrat.positions import check_positions
 from ibstrat.market_data import get_combo_prices
@@ -26,6 +27,7 @@ def submit_double_calendar(und_contract,
         quantity = strategy_params["quantity"]
         strategy_tag = strategy_params["strategy_tag"]
         trading_class = strategy_params.get("trading_class")
+        profit_target_pct = strategy_params.get("profit_target_pct")
 
         print(f"Preparing Double Calendar Spread for {und_contract.symbol} with strategy {strategy_tag}")
         print(f"  Short Call Strike: {short_call_strike}, Short Put Strike: {short_put_strike}")
@@ -82,29 +84,54 @@ def submit_double_calendar(und_contract,
         if und_contract.secType != 'FUT':
             # Submit an adaptive market order for non-futures
             logger.info(f"Submitting adaptive order for {und_contract.symbol}")
-            trade = submit_adaptive_order(
-                order_contract=bag_contract,
-                order_type='MKT',
-                action='BUY',
-                is_live=is_live,
-                quantity=quantity,
-                order_ref=strategy_tag,
-                adaptive_priority=cfg.adaptive_priority
-            )
+            if profit_target_pct > 0:
+                logger.info(f"Using profit taker for {profit_target_pct}")
+                trade = submit_adaptive_order_with_pt(
+                    order_contract=bag_contract,
+                    est_price=mid,
+                    pt_pct=profit_target_pct,
+                    order_type='MKT',
+                    action='BUY',
+                    is_live=is_live,
+                    quantity=quantity,
+                    order_ref=strategy_tag,
+                    adaptive_priority=cfg.adaptive_priority
+                )
+            else:
+                trade = submit_adaptive_order(
+                    order_contract=bag_contract,
+                    order_type='MKT',
+                    action='BUY',
+                    is_live=is_live,
+                    quantity=quantity,
+                    order_ref=strategy_tag,
+                    adaptive_priority=cfg.adaptive_priority
+                )
         else:
             # Submit a limit order using the mid price less 1 tick
             contract_tick = get_tick_size(und_contract.symbol, mid)
             order_limit_price = adjust_to_tick_size(mid, contract_tick) - contract_tick
             logger.debug(f"Limit order price adjusted from {mid} to {order_limit_price} for {und_contract.symbol}")
-            trade = submit_limit_order(
-                order_contract=bag_contract,
-                limit_price=order_limit_price,
-                action='BUY',
-                is_live=is_live,
-                quantity=quantity,
-                strategy_tag=strategy_tag
-            )
-
+            if profit_target_pct > 0:
+                logger.info(f"Using profit taker for {profit_target_pct}")
+                trade = submit_limit_order_with_pt(
+                    order_contract=bag_contract,
+                    est_price=order_limit_price,
+                    pt_pct=profit_target_pct,
+                    action='BUY',
+                    is_live=is_live,
+                    quantity=quantity,
+                    order_ref=strategy_tag
+                )
+            else:
+                trade = submit_limit_order(
+                    order_contract=bag_contract,
+                    limit_price=order_limit_price,
+                    action='BUY',
+                    is_live=is_live,
+                    quantity=quantity,
+                    strategy_tag=strategy_tag
+                )
             # Adjust orders if necessary
             if is_live:
                 adjustOrders([bag_contract.symbol])

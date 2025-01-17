@@ -33,6 +33,7 @@ fri_57dc_params = {
         "short_call_expiry_days": 5,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
+        "profit_target_pct": -1,
         "submit_auto_close": False,
     },
     'QQQ': {
@@ -49,6 +50,7 @@ fri_57dc_params = {
         "short_call_expiry_days": 5,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
+        "profit_target_pct": -1,
         "submit_auto_close": False,
     },
     'NQ': {
@@ -65,6 +67,7 @@ fri_57dc_params = {
         "short_call_expiry_days": 5,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
+        "profit_target_pct": -1,
         "submit_auto_close": False,
     },
     'NDX': {
@@ -81,6 +84,7 @@ fri_57dc_params = {
         "short_call_expiry_days": 5,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
+        "profit_target_pct": -1,
         "submit_auto_close": True,
     },
     'RUT': {
@@ -97,6 +101,7 @@ fri_57dc_params = {
         "short_call_expiry_days": 5,
         "long_put_expiry_days": 21,
         "long_call_expiry_days": 21,
+        "profit_target_pct": -1,
         "submit_auto_close": True,
     },
     # ES has only one config, treating it as primary
@@ -114,6 +119,8 @@ fri_57dc_params = {
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 7,
+        "profit_target_pct": -1,
+        "submit_auto_close": True,
     },
 }
 
@@ -133,6 +140,7 @@ fri_37dc_params = {
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 7,
+        "profit_target_pct": 20,
         "submit_auto_close": False,
     },
     'QQQ': {
@@ -149,6 +157,7 @@ fri_37dc_params = {
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 7,
+        "profit_target_pct": 20,
         "submit_auto_close": True,
     },
     'NQ': {
@@ -165,6 +174,7 @@ fri_37dc_params = {
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 7,
+        "profit_target_pct": 20,
         "submit_auto_close": True,
     },
     'NDX': {
@@ -181,6 +191,7 @@ fri_37dc_params = {
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 7,
+        "profit_target_pct": 20,
         "submit_auto_close": True,
     },
 }
@@ -202,6 +213,7 @@ mon_dc_params = {
             "short_call_expiry_days": 2,
             "long_put_expiry_days": 4,
             "long_call_expiry_days": 7,
+            "profit_target_pct": -1,
             "submit_auto_close": False,
         }
     ],
@@ -220,6 +232,7 @@ mon_dc_params = {
             "short_call_expiry_days": 2,
             "long_put_expiry_days": 4,
             "long_call_expiry_days": 7,
+            "profit_target_pct": -1,
             "submit_auto_close": False,
         }
     ],
@@ -238,6 +251,7 @@ mon_dc_params = {
             "short_call_expiry_days": 2,
             "long_put_expiry_days": 4,
             "long_call_expiry_days": 7,
+            "profit_target_pct": -1,
             "submit_auto_close": False,
         }
     ],
@@ -260,6 +274,7 @@ wed_dc_params = {
             "short_call_expiry_days": 7,
             "long_put_expiry_days": 8,
             "long_call_expiry_days": 8,
+            "profit_target_pct": -1,
             "submit_auto_close": True,
         }
     ],
@@ -278,6 +293,7 @@ wed_dc_params = {
             "short_call_expiry_days": 7,
             "long_put_expiry_days": 8,
             "long_call_expiry_days": 8,
+            "profit_target_pct": -1,
             "submit_auto_close": True,
         }
     ],
@@ -296,6 +312,7 @@ wed_dc_params = {
             "short_call_expiry_days": 7,
             "long_put_expiry_days": 8,
             "long_call_expiry_days": 8,
+            "profit_target_pct": -1,
             "submit_auto_close": True,
         }
     ],
