@@ -135,12 +135,25 @@ def submit_double_calendar(und_contract,
                     strategy_tag=strategy_tag
                 )
             ib.sleep(2)
+            logger.debug(f"Trade submitted: {trade}")
             # Adjust orders if necessary
             if is_live:
                 adjustOrders([bag_contract.symbol])
 
         if trade and submit_auto_close:
-            if wait_for_order_fill(trade.order.orderId, 500):
+            if is_live:
+                if wait_for_order_fill(trade.order.orderId, 500):
+                    close_result = close_at_time(
+                        order_contract=bag_contract,
+                        closing_action='SELL',  # Closing action opposite of main order
+                        quantity=quantity,
+                        is_live=True,
+                        order_ref=strategy_tag,
+                        close_time=auto_close_date_time,
+                        use_adaptive=False if und_contract.secType == 'FUT' else True
+                    )
+                    logger.info(f"Adaptive close result: {close_result}")
+            else:
                 close_result = close_at_time(
                     order_contract=bag_contract,
                     closing_action='SELL',  # Closing action opposite of main order
@@ -151,7 +164,6 @@ def submit_double_calendar(und_contract,
                     use_adaptive=False if und_contract.secType == 'FUT' else True
                 )
                 logger.info(f"Adaptive close result: {close_result}")
-
         # Handle trade submission results
         if not trade:
             logger.error(f"Failed to submit Double Calendar order for {und_contract.symbol}.")
