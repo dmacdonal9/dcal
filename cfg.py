@@ -5,7 +5,7 @@ mon_dc_symbols = ['SPX', 'QQQ']
 wed_dc_symbols = ['SPX', 'QQQ']
 
 dcal_close_time = '16:00:00'
-adaptive_priority = 'Patient'
+adaptive_priority = 'Normal'
 trade_log_sheet_id = "1KnYcYCizbkLP3GHQfsdmoXoulOcwyw_FRWGedQpfflI"
 
 # IBKR Connection Parameters

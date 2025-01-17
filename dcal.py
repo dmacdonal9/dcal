@@ -1,8 +1,9 @@
 import logging
 from ibstrat.qualify import qualify_contract
-from ibstrat.orders import create_bag, submit_limit_order, adjustOrders, submit_limit_order_with_pt
+from ibstrat.orders import create_bag, submit_limit_order, adjustOrders, submit_limit_order_with_pt, wait_for_order_fill
 from ibstrat.adaptive import submit_adaptive_order, submit_adaptive_order_with_pt,close_at_time
 from ibstrat.positions import check_positions
+from ibstrat.ib_instance import ib
 from ibstrat.market_data import get_combo_prices
 from ibstrat.trclass import get_trading_class_for_symbol
 from ibstrat.ticksize import get_tick_size, adjust_to_tick_size
@@ -107,6 +108,7 @@ def submit_double_calendar(und_contract,
                     order_ref=strategy_tag,
                     adaptive_priority=cfg.adaptive_priority
                 )
+            ib.sleep(2)
         else:
             # Submit a limit order using the mid price less 1 tick
             contract_tick = get_tick_size(und_contract.symbol, mid)
@@ -132,21 +134,23 @@ def submit_double_calendar(und_contract,
                     quantity=quantity,
                     strategy_tag=strategy_tag
                 )
+            ib.sleep(2)
             # Adjust orders if necessary
             if is_live:
                 adjustOrders([bag_contract.symbol])
 
-        if submit_auto_close:
-            close_result = close_at_time(
-                order_contract=bag_contract,
-                closing_action='SELL',  # Closing action opposite of main order
-                quantity=quantity,
-                is_live=True,
-                order_ref=strategy_tag,
-                close_time=auto_close_date_time,
-                use_adaptive=False if und_contract.secType == 'FUT' else True
-            )
-            logger.info(f"Adaptive close result: {close_result}")
+        if trade and submit_auto_close:
+            if wait_for_order_fill(trade.order.orderId, 500):
+                close_result = close_at_time(
+                    order_contract=bag_contract,
+                    closing_action='SELL',  # Closing action opposite of main order
+                    quantity=quantity,
+                    is_live=True,
+                    order_ref=strategy_tag,
+                    close_time=auto_close_date_time,
+                    use_adaptive=False if und_contract.secType == 'FUT' else True
+                )
+                logger.info(f"Adaptive close result: {close_result}")
 
         # Handle trade submission results
         if not trade:
