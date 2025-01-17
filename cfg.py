@@ -36,6 +36,7 @@ fri_57dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
+        "close_time": '20:00:00',  # 4PM Atlantic
     },
     'QQQ': {
         "quantity": 1,
@@ -53,6 +54,7 @@ fri_57dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
+        "close_time": '20:00:00',  # 4PM Atlantic
     },
     'NQ': {
         "quantity": 1,
@@ -70,6 +72,7 @@ fri_57dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
+        "close_time": '20:00:00',  # 4PM Atlantic
     },
     'NDX': {
         "quantity": 1,
@@ -87,6 +90,7 @@ fri_57dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
+        "close_time": '20:00:00',  # 4PM Atlantic
     },
     'RUT': {
         "quantity": 1,
@@ -104,8 +108,8 @@ fri_57dc_params = {
         "long_call_expiry_days": 21,
         "profit_target_pct": -1,
         "submit_auto_close": True,
+        "close_time": '20:00:00',  # 4PM Atlantic
     },
-    # ES has only one config, treating it as primary
     'ES': {
         "quantity": 1,
         "strategy_tag": 'FDC37',
@@ -122,6 +126,7 @@ fri_57dc_params = {
         "long_call_expiry_days": 7,
         "profit_target_pct": -1,
         "submit_auto_close": True,
+        "close_time": '20:00:00',  # 4PM Atlantic
     },
 }
 
@@ -143,6 +148,7 @@ fri_37dc_params = {
         "long_call_expiry_days": 7,
         "profit_target_pct": 20,
         "submit_auto_close": True,
+        "close_time": '18:00:00',  # 2PM Atlantic
     },
     'QQQ': {
         "quantity": 1,
@@ -160,6 +166,7 @@ fri_37dc_params = {
         "long_call_expiry_days": 7,
         "profit_target_pct": 20,
         "submit_auto_close": True,
+        "close_time": '18:00:00',  # 2PM Atlantic
     },
     'NQ': {
         "quantity": 1,
@@ -177,6 +184,7 @@ fri_37dc_params = {
         "long_call_expiry_days": 7,
         "profit_target_pct": 20,
         "submit_auto_close": True,
+        "close_time": '18:00:00',  # 2PM Atlantic
     },
     'NDX': {
         "quantity": 1,
@@ -194,6 +202,7 @@ fri_37dc_params = {
         "long_call_expiry_days": 7,
         "profit_target_pct": 20,
         "submit_auto_close": True,
+        "close_time": '18:00:00',  # 2PM Atlantic
     },
 }
 
@@ -216,6 +225,7 @@ mon_dc_params = {
             "long_call_expiry_days": 7,
             "profit_target_pct": -1,
             "submit_auto_close": True,
+            "close_time": '20:00:00',  # 4PM Atlantic
         }
     ],
     'QQQ': [
@@ -235,6 +245,7 @@ mon_dc_params = {
             "long_call_expiry_days": 7,
             "profit_target_pct": -1,
             "submit_auto_close": True,
+            "close_time": '20:00:00',  # 4PM Atlantic
         }
     ],
     'SPX': [
@@ -254,6 +265,7 @@ mon_dc_params = {
             "long_call_expiry_days": 7,
             "profit_target_pct": -1,
             "submit_auto_close": True,
+            "close_time": '20:00:00', #4PM Atlantic
         }
     ],
 }
@@ -277,6 +289,7 @@ wed_dc_params = {
             "long_call_expiry_days": 8,
             "profit_target_pct": -1,
             "submit_auto_close": True,
+            "close_time": '20:00:00',  # 4PM Atlantic
         }
     ],
     'QQQ': [
@@ -296,6 +309,7 @@ wed_dc_params = {
             "long_call_expiry_days": 8,
             "profit_target_pct": -1,
             "submit_auto_close": True,
+            "close_time": '20:00:00',  # 4PM Atlantic
         }
     ],
     'SPX': [
@@ -315,6 +329,7 @@ wed_dc_params = {
             "long_call_expiry_days": 8,
             "profit_target_pct": -1,
             "submit_auto_close": True,
+            "close_time": '20:00:00',  # 4PM Atlantic
         }
     ],
 }

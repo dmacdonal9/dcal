@@ -1,15 +1,12 @@
 import logging
 from ibstrat.qualify import qualify_contract
-from ibstrat.orders import create_bag, submit_limit_order, adjustOrders, submit_order_at_time, wait_for_order_fill, \
-    submit_limit_order_with_pt
-from ibstrat.adaptive import submit_adaptive_order, submit_adaptive_order_with_pt
-from ibstrat.gsheet import log_trade
+from ibstrat.orders import create_bag, submit_limit_order, adjustOrders, submit_limit_order_with_pt
+from ibstrat.adaptive import submit_adaptive_order, submit_adaptive_order_with_pt,close_at_time
 from ibstrat.positions import check_positions
 from ibstrat.market_data import get_combo_prices
 from ibstrat.ticksize import get_tick_size, adjust_to_tick_size
 import cfg
-from ib_async import Order, Contract
-from ib_insync import ib
+
 
 logger = logging.getLogger('DC')
 
@@ -28,6 +25,8 @@ def submit_double_calendar(und_contract,
         strategy_tag = strategy_params["strategy_tag"]
         trading_class = strategy_params.get("trading_class")
         profit_target_pct = strategy_params.get("profit_target_pct")
+        submit_auto_close = strategy_params.get("submit_auto_close")
+        auto_close_date_time = short_put_expiry_date + "-" + strategy_params.get("close_time") if submit_auto_close else None
 
         print(f"Preparing Double Calendar Spread for {und_contract.symbol} with strategy {strategy_tag}")
         print(f"  Short Call Strike: {short_call_strike}, Short Put Strike: {short_put_strike}")
@@ -135,6 +134,18 @@ def submit_double_calendar(und_contract,
             # Adjust orders if necessary
             if is_live:
                 adjustOrders([bag_contract.symbol])
+
+        if submit_auto_close:
+            close_result = close_at_time(
+                order_contract=bag_contract,
+                closing_action='SELL',  # Closing action opposite of main order
+                quantity=quantity,
+                is_live=True,
+                order_ref=strategy_tag,
+                close_time=auto_close_date_time,
+                use_adaptive=False if und_contract.secType == 'FUT' else True
+            )
+            logger.info(f"Adaptive close result: {close_result}")
 
         # Handle trade submission results
         if not trade:
