@@ -35,7 +35,7 @@ fri_57dc_params = {
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
-        "submit_auto_close": False,
+        "submit_auto_close": True,
     },
     'QQQ': {
         "quantity": 1,
@@ -52,7 +52,7 @@ fri_57dc_params = {
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
-        "submit_auto_close": False,
+        "submit_auto_close": True,
     },
     'NQ': {
         "quantity": 1,
@@ -69,7 +69,7 @@ fri_57dc_params = {
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
-        "submit_auto_close": False,
+        "submit_auto_close": True,
     },
     'NDX': {
         "quantity": 1,
@@ -142,7 +142,7 @@ fri_37dc_params = {
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 7,
         "profit_target_pct": 20,
-        "submit_auto_close": False,
+        "submit_auto_close": True,
     },
     'QQQ': {
         "quantity": 1,
@@ -215,7 +215,7 @@ mon_dc_params = {
             "long_put_expiry_days": 4,
             "long_call_expiry_days": 7,
             "profit_target_pct": -1,
-            "submit_auto_close": False,
+            "submit_auto_close": True,
         }
     ],
     'QQQ': [
@@ -234,7 +234,7 @@ mon_dc_params = {
             "long_put_expiry_days": 4,
             "long_call_expiry_days": 7,
             "profit_target_pct": -1,
-            "submit_auto_close": False,
+            "submit_auto_close": True,
         }
     ],
     'SPX': [
@@ -253,7 +253,7 @@ mon_dc_params = {
             "long_put_expiry_days": 4,
             "long_call_expiry_days": 7,
             "profit_target_pct": -1,
-            "submit_auto_close": False,
+            "submit_auto_close": True,
         }
     ],
 }
