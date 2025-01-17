@@ -155,32 +155,37 @@ def main():
     parser = argparse.ArgumentParser(description="Process double calendar options strategies.")
     parser.add_argument('-l', '--live', action='store_true', help="Use live orders?")
     parser.add_argument('-t', '--test', action='store_true', help="Use test TWS configuration.")
-    parser.add_argument('-m', '--monday', action='store_true', help="Submit Mon Double Calendar using mon config.")
-    parser.add_argument('-w', '--wednesday', action='store_true', help="Submit Wed Double Calendar using wed config.")
-    parser.add_argument('-f', '--friday', action='store_true', help="Submit Fri Double Calendar using fri config.")
+    parser.add_argument('-m', '--monday', action='store_true', help="Submit Monday Double Calendar using Monday config.")
+    parser.add_argument('-w', '--wednesday', action='store_true', help="Submit Wednesday Double Calendar using Wednesday config.")
+    parser.add_argument('-f57', '--friday57', action='store_true', help="Submit Friday Double Calendar using 57 config.")
+    parser.add_argument('-f37', '--friday37', action='store_true', help="Submit Friday Double Calendar using 37 config.")
 
     args = parser.parse_args()
 
-    # Ensure mutually exclusive -f and -m
-    if args.friday and args.monday:
-        logger.error("Arguments -f and -m are mutually exclusive. Please use only one.")
+    # Ensure mutually exclusive options for Friday configurations
+    if args.friday57 and args.friday37:
+        logger.error("Arguments -f57 and -f37 are mutually exclusive. Please use only one.")
         return
 
     # Determine the selected configuration
-    if args.friday:
+    if args.friday57:
         symbols = cfg.fri_dc_symbols
-        strategy = cfg.fri_dc_params
-        logger.info(f"Running Friday DC")
+        strategy = cfg.fri_57dc_params
+        logger.info("Running Friday DC (57 config)")
+    elif args.friday37:
+        symbols = cfg.fri_dc_symbols
+        strategy = cfg.fri_37dc_params
+        logger.info("Running Friday DC (37 config)")
     elif args.monday:
         symbols = cfg.mon_dc_symbols
         strategy = cfg.mon_dc_params
-        logger.info(f"Running Monday DC")
+        logger.info("Running Monday DC")
     elif args.wednesday:
         symbols = cfg.wed_dc_symbols
         strategy = cfg.wed_dc_params
-        logger.info(f"Running Wednesday DC")
+        logger.info("Running Wednesday DC")
     else:
-        logger.error("You must specify either -f (Friday config) or -m (Monday config).")
+        logger.error("You must specify a valid configuration: -f57, -f37, -m, or -w.")
         return
 
     live_orders = args.live
