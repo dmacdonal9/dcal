@@ -10,7 +10,7 @@ from ibstrat.chain import fetch_option_chain,find_next_closest_expiry
 from ibstrat.options import find_option_by_target_delta,find_option_by_target_strike
 import argparse
 from ibstrat.dteutil import calculate_expiry_date
-from ibstrat.trclass import get_trading_class_for_date
+from ibstrat.trclass import get_trading_class_for_symbol
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG,
@@ -31,8 +31,7 @@ logging.getLogger("ibstrat.orders").setLevel(logging.ERROR)
 def open_double_calendar(symbol: str, params: dict, is_live: bool):
     logger.info(f"Starting Double Calendar Trade Submission for {symbol}")
 
-    expiry = calculate_expiry_date(params["long_call_expiry_days"])
-    tr_class = get_trading_class_for_date(symbol, expiry) if params["sec_type"] != 'FUT' else ''
+    tr_class = get_trading_class_for_symbol(symbol)
 
     try:
         # Qualify the underlying contract

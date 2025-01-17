@@ -4,6 +4,7 @@ from ibstrat.orders import create_bag, submit_limit_order, adjustOrders, submit_
 from ibstrat.adaptive import submit_adaptive_order, submit_adaptive_order_with_pt,close_at_time
 from ibstrat.positions import check_positions
 from ibstrat.market_data import get_combo_prices
+from ibstrat.trclass import get_trading_class_for_symbol
 from ibstrat.ticksize import get_tick_size, adjust_to_tick_size
 import cfg
 
@@ -23,7 +24,7 @@ def submit_double_calendar(und_contract,
         opt_exchange = strategy_params["opt_exchange"]
         quantity = strategy_params["quantity"]
         strategy_tag = strategy_params["strategy_tag"]
-        trading_class = strategy_params.get("trading_class")
+        trading_class = get_trading_class_for_symbol(und_contract.symbol)
         profit_target_pct = strategy_params.get("profit_target_pct")
         submit_auto_close = strategy_params.get("submit_auto_close")
         auto_close_date_time = short_put_expiry_date + "-" + strategy_params.get("close_time") if submit_auto_close else None
