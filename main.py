@@ -10,6 +10,7 @@ from ibstrat.chain import fetch_option_chain,find_next_closest_expiry
 from ibstrat.options import find_option_by_target_delta,find_option_by_target_strike
 import argparse
 from ibstrat.dteutil import calculate_expiry_date
+from ibstrat.trclass import get_trading_class_for_date
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG,
@@ -17,7 +18,7 @@ logging.basicConfig(level=logging.DEBUG,
                     handlers=[logging.StreamHandler()])
 logger = logging.getLogger('DC')
 
-logging.getLogger("ib_async").setLevel(logging.ERROR)
+logging.getLogger("ib_async").setLevel(logging.CRITICAL)
 logging.getLogger("ibstrat.indicators").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.ib_instance").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.dteutil").setLevel(logging.ERROR)
@@ -28,9 +29,10 @@ logging.getLogger("ibstrat.chain").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.orders").setLevel(logging.ERROR)
 
 def open_double_calendar(symbol: str, params: dict, is_live: bool):
-    logger.info(f"Starting Double Calendar Trade Submission for {symbol} with strategy tag {params['strategy_tag']}")
+    logger.info(f"Starting Double Calendar Trade Submission for {symbol}")
 
-    tr_class = params['trading_class']
+    expiry = calculate_expiry_date(params["long_call_expiry_days"])
+    tr_class = get_trading_class_for_date(symbol, expiry) if params["sec_type"] != 'FUT' else ''
 
     try:
         # Qualify the underlying contract
@@ -169,20 +171,20 @@ def main():
 
     # Determine the selected configuration
     if args.friday57:
-        symbols = cfg.fri_dc_symbols
-        strategy = cfg.fri_57dc_params
+        symbols = cfg.fri_57dc_symbols
+        params = cfg.fri_57dc_params
         logger.info("Running Friday DC (57 config)")
     elif args.friday37:
-        symbols = cfg.fri_dc_symbols
-        strategy = cfg.fri_37dc_params
+        symbols = cfg.fri_37dc_symbols
+        params = cfg.fri_37dc_params
         logger.info("Running Friday DC (37 config)")
     elif args.monday:
         symbols = cfg.mon_dc_symbols
-        strategy = cfg.mon_dc_params
+        params = cfg.mon_dc_params
         logger.info("Running Monday DC")
     elif args.wednesday:
         symbols = cfg.wed_dc_symbols
-        strategy = cfg.wed_dc_params
+        params = cfg.wed_dc_params
         logger.info("Running Wednesday DC")
     else:
         logger.error("You must specify a valid configuration: -f57, -f37, -m, or -w.")
@@ -206,14 +208,7 @@ def main():
 
     # Execute the selected action
     for symbol in symbols:
-        strategies = strategy.get(symbol)
-        if not strategies:
-            logger.error(f"No strategies found for {symbol} in configuration.")
-            continue
-
-        for params in strategies:
-            logger.info(f"Processing strategy for {symbol} with strategy tag {params['strategy_tag']}")
-            open_double_calendar(symbol, params, live_orders)
+        open_double_calendar(symbol, params[symbol], live_orders)
 
 
 if __name__ == "__main__":
