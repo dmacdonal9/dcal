@@ -286,7 +286,7 @@ wed_dc_params = {
     },
     'QQQ': {
         "exchange": 'SMART',
-        "opt_exchange": 'CBOE',
+        "opt_exchange": 'SMART',
         "sec_type": 'STK',
         "trading_class": '',
         "mult": '100',
