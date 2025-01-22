@@ -3,7 +3,6 @@ fri_57dc_symbols = ['SPX', 'NQ']
 fri_37dc_symbols = ['SPX', 'NQ']
 mon_dc_symbols = ['SPX', 'QQQ']
 wed_dc_symbols = ['SPX', 'QQQ']
-wed_dc_symbols = ['QQQ']
 
 adaptive_priority = 'Normal'
 adjust_sleep_interval = 4
