@@ -5,7 +5,7 @@ mon_dc_symbols = ['SPX', 'QQQ']
 wed_dc_symbols = ['SPX', 'QQQ']
 
 adaptive_priority = 'Normal'
-trade_log_sheet_id = "1KnYcYCizbkLP3GHQfsdmoXoulOcwyw_FRWGedQpfflI"
+adjust_sleep_interval = 4
 
 # IBKR Connection Parameters
 ib_host = '127.0.0.1'

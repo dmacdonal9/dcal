@@ -108,7 +108,7 @@ def submit_double_calendar(und_contract,
                     order_ref=strategy_tag,
                     adaptive_priority=cfg.adaptive_priority
                 )
-            ib.sleep(2)
+            ib.sleep(cfg.adjust_sleep_interval)
         else:
             # Submit a limit order using the mid price less 1 tick
             contract_tick = get_tick_size(und_contract.symbol, mid)
@@ -134,7 +134,7 @@ def submit_double_calendar(und_contract,
                     quantity=quantity,
                     strategy_tag=strategy_tag
                 )
-            ib.sleep(2)
+            ib.sleep(cfg.adjust_sleep_interval)
             logger.debug(f"Trade submitted: {trade}")
             # Adjust orders if necessary
             if is_live:
