@@ -30,6 +30,7 @@ logging.getLogger("ibstrat.orders").setLevel(logging.ERROR)
 
 def open_double_calendar(symbol: str, params: dict, is_live: bool):
     logger.info(f"Starting Double Calendar Trade Submission for {symbol}")
+    logger.debug(f"Strategy parameters: {params}")
 
     tr_class = get_trading_class_for_symbol(symbol)
 
