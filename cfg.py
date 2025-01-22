@@ -3,6 +3,7 @@ fri_57dc_symbols = ['SPX', 'NQ']
 fri_37dc_symbols = ['SPX', 'NQ']
 mon_dc_symbols = ['SPX', 'QQQ']
 wed_dc_symbols = ['SPX', 'QQQ']
+wed_dc_symbols = ['QQQ']
 
 adaptive_priority = 'Normal'
 adjust_sleep_interval = 4
@@ -284,7 +285,7 @@ wed_dc_params = {
         "close_time": '20:00:00',  # 4PM Atlantic
     },
     'QQQ': {
-        "exchange": 'NASDAQ',
+        "exchange": 'SMART',
         "opt_exchange": 'CBOE',
         "sec_type": 'STK',
         "trading_class": '',

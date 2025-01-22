@@ -141,24 +141,12 @@ def submit_double_calendar(und_contract,
                 adjustOrders([bag_contract.symbol])
 
         if trade and submit_auto_close:
-            if is_live:
-                if wait_for_order_fill(trade.order.orderId, 500):
-                    close_result = close_at_time(
-                        order_contract=bag_contract,
-                        closing_action='SELL',  # Closing action opposite of main order
-                        quantity=quantity,
-                        is_live=True,
-                        order_ref=strategy_tag,
-                        close_time=auto_close_date_time,
-                        use_adaptive=False if und_contract.secType == 'FUT' else True
-                    )
-                    logger.info(f"Adaptive close result: {close_result}")
-            else:
+            if wait_for_order_fill(trade.order.orderId, 500):
                 close_result = close_at_time(
                     order_contract=bag_contract,
                     closing_action='SELL',  # Closing action opposite of main order
                     quantity=quantity,
-                    is_live=True,
+                    is_live=is_live,
                     order_ref=strategy_tag,
                     close_time=auto_close_date_time,
                     use_adaptive=False if und_contract.secType == 'FUT' else True
