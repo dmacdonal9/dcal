@@ -149,7 +149,8 @@ def submit_double_calendar(und_contract,
                     is_live=is_live,
                     order_ref=strategy_tag,
                     close_time=auto_close_date_time,
-                    use_adaptive=False if und_contract.secType == 'FUT' else True
+                    use_adaptive=False if und_contract.secType == 'FUT' else True,
+                    tif='GTC'
                 )
                 logger.info(f"Adaptive close result: {close_result}")
         # Handle trade submission results
