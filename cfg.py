@@ -144,7 +144,7 @@ fri_37dc_params = {
         "short_put_expiry_days": 3,
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
-        "long_call_expiry_days": 7,
+        "long_call_expiry_days": 10,
         "profit_target_pct": 20,
         "submit_auto_close": True,
         "close_time": '18:00:00',  # 2PM Atlantic
@@ -162,7 +162,7 @@ fri_37dc_params = {
         "short_put_expiry_days": 3,
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
-        "long_call_expiry_days": 7,
+        "long_call_expiry_days": 10,
         "profit_target_pct": 20,
         "submit_auto_close": True,
         "close_time": '18:00:00',  # 2PM Atlantic
@@ -180,7 +180,7 @@ fri_37dc_params = {
         "short_put_expiry_days": 3,
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
-        "long_call_expiry_days": 7,
+        "long_call_expiry_days": 10,
         "profit_target_pct": 20,
         "submit_auto_close": True,
         "close_time": '18:00:00',  # 2PM Atlantic
@@ -198,7 +198,7 @@ fri_37dc_params = {
         "short_put_expiry_days": 3,
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
-        "long_call_expiry_days": 7,
+        "long_call_expiry_days": 10,
         "profit_target_pct": 20,
         "submit_auto_close": True,
         "close_time": '18:00:00',  # 2PM Atlantic
