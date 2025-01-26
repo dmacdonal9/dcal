@@ -145,7 +145,7 @@ fri_37dc_params = {
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
-        "profit_target_pct": 20,
+        "profit_target_pct": -1,
         "submit_auto_close": True,
         "close_time": '18:00:00',  # 2PM Atlantic
     },
@@ -163,7 +163,7 @@ fri_37dc_params = {
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
-        "profit_target_pct": 20,
+        "profit_target_pct": -1,
         "submit_auto_close": True,
         "close_time": '18:00:00',  # 2PM Atlantic
     },
@@ -181,7 +181,7 @@ fri_37dc_params = {
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
-        "profit_target_pct": 20,
+        "profit_target_pct": -1,
         "submit_auto_close": True,
         "close_time": '18:00:00',  # 2PM At lantic
     },
@@ -199,7 +199,7 @@ fri_37dc_params = {
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
-        "profit_target_pct": 20,
+        "profit_target_pct": -1,
         "submit_auto_close": True,
         "close_time": '18:00:00',  # 2PM Atlantic
     },
