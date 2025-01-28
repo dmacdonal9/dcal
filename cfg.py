@@ -278,7 +278,7 @@ wed_dc_params = {
         "short_put_expiry_days": 7,
         "short_call_expiry_days": 7,
         "long_put_expiry_days": 8,
-        "long_call_expiry_days": 8,
+        "long_call_expiry_days": 9,
         "profit_target_pct": -1,
         "submit_auto_close": True,
         "close_time": '20:00:00',  # 4PM Atlantic
@@ -296,7 +296,7 @@ wed_dc_params = {
         "short_put_expiry_days": 7,
         "short_call_expiry_days": 7,
         "long_put_expiry_days": 8,
-        "long_call_expiry_days": 8,
+        "long_call_expiry_days": 9,
         "profit_target_pct": -1,
         "submit_auto_close": True,
         "close_time": '20:00:00',  # 4PM Atlantic
@@ -314,7 +314,7 @@ wed_dc_params = {
         "short_put_expiry_days": 7,
         "short_call_expiry_days": 7,
         "long_put_expiry_days": 8,
-        "long_call_expiry_days": 8,
+        "long_call_expiry_days": 9,
         "profit_target_pct": -1,
         "submit_auto_close": True,
         "close_time": '20:00:00',  # 4PM Atlantic
