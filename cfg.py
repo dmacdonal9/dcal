@@ -13,7 +13,7 @@ ib_port = 7496  # Default live trading port
 ib_clientid = 3  # Client ID for live trading
 
 # Testing configuration
-test_ib_host = 'dte'
+test_ib_host = '127.0.0.1'
 test_ib_port = 7500  # Port for test TWS
 test_ib_clientid = 3  # Client ID for test TWS
 
