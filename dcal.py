@@ -1,6 +1,6 @@
 import logging
 from ibstrat.qualify import qualify_contract
-from ibstrat.orders import create_bag, submit_limit_order, adjustOrders, submit_limit_order_with_pt, wait_for_order_fill
+from ibstrat.orders import create_bag, submit_limit_order, adj_price_for_order, submit_limit_order_with_pt, wait_for_order_fill
 from ibstrat.adaptive import submit_adaptive_order, submit_adaptive_order_with_pt,close_at_time
 from ibstrat.positions import check_positions
 from ibstrat.ib_instance import ib
@@ -28,6 +28,8 @@ def submit_double_calendar(und_contract,
         trading_class = get_trading_class_for_symbol(und_contract.symbol)
         profit_target_pct = strategy_params.get("profit_target_pct")
         submit_auto_close = strategy_params.get("submit_auto_close")
+        use_adaptive_on_combo = strategy_params.get("use_adaptive_on_combo")
+        use_adaptive_on_exit = strategy_params.get("use_adaptive_on_exit")
         auto_close_date_time = short_put_expiry_date + "-" + strategy_params.get("close_time") if submit_auto_close else None
 
         print(f"Preparing Double Calendar Spread for {und_contract.symbol} with strategy {strategy_tag}")
@@ -82,7 +84,7 @@ def submit_double_calendar(und_contract,
         logger.info(f"Combo prices: Bid: {bid}, Mid: {mid}, Ask: {ask}")
 
         # Handle futures and options differently
-        if und_contract.secType != 'FUT':
+        if use_adaptive_on_combo:
             # Submit an adaptive market order for non-futures
             logger.info(f"Submitting adaptive order for {und_contract.symbol}")
             if profit_target_pct > 0:
@@ -138,18 +140,18 @@ def submit_double_calendar(und_contract,
             logger.debug(f"Trade submitted: {trade}")
             # Adjust orders if necessary
             if is_live:
-                adjustOrders([bag_contract.symbol])
+                adj_price_for_order(trade.order.orderId)
 
         if trade and submit_auto_close:
             if wait_for_order_fill(trade.order.orderId, 500):
                 close_result = close_at_time(
                     order_contract=bag_contract,
-                    closing_action='SELL',  # Closing action opposite of main order
+                    closing_action='SELL',
                     quantity=quantity,
                     is_live=is_live,
                     order_ref=strategy_tag,
                     close_time=auto_close_date_time,
-                    use_adaptive=False if und_contract.secType == 'FUT' else True,
+                    use_adaptive=use_adaptive_on_exit,
                     tif='GTC'
                 )
                 logger.info(f"Adaptive close result: {close_result}")
