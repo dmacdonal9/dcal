@@ -1,5 +1,5 @@
 # Default configuration (live trading)
-fri_57dc_symbols = ['SPX']
+fri_57dc_symbols = ['NQ']
 fri_37dc_symbols = ['SPX']
 mon_dc_symbols = ['SPX']
 wed_dc_symbols = ['SPX']
