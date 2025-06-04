@@ -140,7 +140,7 @@ def submit_double_calendar(und_contract,
             logger.debug(f"Trade submitted: {trade}")
             # Adjust orders if necessary
             if is_live:
-                adj_price_for_order(trade.order.orderId,40,cfg.adjust_sleep_interval)
+                adj_price_for_order(trade.order.orderId,100,cfg.adjust_sleep_interval)
 
         if trade and submit_auto_close:
             if wait_for_order_fill(trade.order.orderId, 500):

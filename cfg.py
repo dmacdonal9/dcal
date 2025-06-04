@@ -1,5 +1,5 @@
 # Default configuration (live trading)
-fri_57dc_symbols = ['NQ']
+fri_57dc_symbols = ['SPX']
 fri_37dc_symbols = ['SPX']
 mon_dc_symbols = ['SPX']
 wed_dc_symbols = ['SPX']
@@ -27,8 +27,8 @@ fri_57dc_params = {
         "sec_type": 'IND',
         "trading_class": 'SPXW',
         "mult": '100',
-        "use_adaptive_on_combo": False,
-        "use_adaptive_on_exit": False,
+        "use_adaptive_on_combo": True,
+        "use_adaptive_on_exit": True,
         "target_put_delta": 20,
         "target_call_delta": 20,
         "short_put_expiry_days": 5,
