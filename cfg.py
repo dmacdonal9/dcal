@@ -28,7 +28,7 @@ fri_57dc_params = {
         "trading_class": 'SPXW',
         "mult": '100',
         "use_adaptive_on_combo": True,
-        "use_adaptive_on_exit": True,
+        "use_adaptive_on_exit": False,
         "target_put_delta": 20,
         "target_call_delta": 20,
         "short_put_expiry_days": 5,
@@ -47,7 +47,7 @@ fri_57dc_params = {
         "sec_type": 'STK',
         "trading_class": '',
         "mult": '100',
-        "use_adaptive_on_combo": False,
+        "use_adaptive_on_combo": True,
         "use_adaptive_on_exit": False,
         "target_put_delta": 20,
         "target_call_delta": 20,
@@ -87,7 +87,7 @@ fri_57dc_params = {
         "sec_type": 'IND',
         "trading_class": 'NDXP',
         "mult": '100',
-        "use_adaptive_on_combo": False,
+        "use_adaptive_on_combo": True,
         "use_adaptive_on_exit": False,
         "target_put_delta": 20,
         "target_call_delta": 20,
@@ -151,7 +151,7 @@ fri_37dc_params = {
         "sec_type": 'IND',
         "trading_class": 'SPXW',
         "mult": '100',
-        "use_adaptive_on_combo": False,
+        "use_adaptive_on_combo": True,
         "use_adaptive_on_exit": False,
         "target_put_delta": 30,
         "target_call_delta": 20,
@@ -171,7 +171,7 @@ fri_37dc_params = {
         "sec_type": 'STK',
         "trading_class": '',
         "mult": '100',
-        "use_adaptive_on_combo": False,
+        "use_adaptive_on_combo": True,
         "use_adaptive_on_exit": False,
         "target_put_delta": 30,
         "target_call_delta": 20,
@@ -211,7 +211,7 @@ fri_37dc_params = {
         "sec_type": 'IND',
         "trading_class": 'NDXP',
         "mult": '100',
-        "use_adaptive_on_combo": False,
+        "use_adaptive_on_combo": True,
         "use_adaptive_on_exit": False,
         "target_put_delta": 30,
         "target_call_delta": 20,
@@ -225,7 +225,6 @@ fri_37dc_params = {
     },
 }
 
-# Monday Double Calendar Parameters (unchanged)
 # Monday Double Calendar Parameters (corrected)
 mon_dc_params = {
     'NQ': {
