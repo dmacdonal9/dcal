@@ -273,7 +273,7 @@ mon_dc_params = {
         "sec_type": 'IND',
         "trading_class": 'SPXW',
         "mult": '100',
-        "use_adaptive_on_combo": False,
+        "use_adaptive_on_combo": True,
         "use_adaptive_on_exit": False,
         "quantity": 1,
         "strategy_tag": 'MDC2427',
