@@ -26,7 +26,7 @@ logging.getLogger("ibstrat.qualify").setLevel(logging.DEBUG)
 logging.getLogger("ibstrat.market_data").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.options").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.chain").setLevel(logging.ERROR)
-logging.getLogger("ibstrat.orders").setLevel(logging.DEBUG)
+logging.getLogger("ibstrat.orders").setLevel(logging.ERROR)
 
 def open_double_calendar(symbol: str, params: dict, is_live: bool):
     logger.info(f"Starting Double Calendar Trade Submission for {symbol}")
