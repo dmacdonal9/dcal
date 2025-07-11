@@ -5,7 +5,7 @@ from ibstrat.ib_instance import connect_to_ib, ib
 from ibstrat.adaptive import close_at_time
 
 # Connect to TWS or IB Gateway
-connect_to_ib('dte',7500,33,1)
+connect_to_ib('127.0.0.1',7500,33,1)
 
 # Define and qualify the individual legs
 short_put = Option(
@@ -38,5 +38,5 @@ print(short_ticker)
 print(long_ticker)
 # Wait for market data to populate
 
-order = close_at_time(short_put,'BUY',1,False,'testadaptive','20250711 14:00:00', False,'GTC')
+order = close_at_time(short_put,'BUY',1,False,'testadaptive','14:00:00', True,'DAY')
 print(order)

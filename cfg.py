@@ -181,7 +181,7 @@ fri_37dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
     'NQ': {
         "quantity": 1,
@@ -201,7 +201,7 @@ fri_37dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
     'NDX': {
         "quantity": 1,
@@ -221,7 +221,7 @@ fri_37dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
 }
 
@@ -245,7 +245,7 @@ mon_dc_params = {
         "long_call_expiry_days": 7,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
     'QQQ': {
         "exchange": 'SMART',
@@ -265,7 +265,7 @@ mon_dc_params = {
         "long_call_expiry_days": 7,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
     'SPX': {
         "exchange": 'CBOE',
@@ -285,7 +285,7 @@ mon_dc_params = {
         "long_call_expiry_days": 7,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
 }
 
@@ -308,7 +308,7 @@ wed_dc_params = {
         "long_call_expiry_days": 9,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 1PM Atlantic
+        "close_time": '17:00:00',  # 1PM Atlantic
     },
     'QQQ': {
         "exchange": 'SMART',
@@ -328,7 +328,7 @@ wed_dc_params = {
         "long_call_expiry_days": 9,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
     'SPX': {
         "exchange": 'CBOE',
@@ -348,6 +348,6 @@ wed_dc_params = {
         "long_call_expiry_days": 9,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 1PM Atlantic
+        "close_time": '17:00:00',  # 1PM Atlantic
     },
 }
