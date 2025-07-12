@@ -5,7 +5,7 @@ mon_dc_symbols = ['ES','NQ']
 wed_dc_symbols = ['ES','NQ']
 
 adaptive_priority = 'Normal'
-adjust_sleep_interval = 4
+adjust_sleep_interval = 3
 
 # IBKR Connection Parameters
 ib_host = '127.0.0.1'
