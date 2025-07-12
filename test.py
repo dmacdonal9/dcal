@@ -1,6 +1,8 @@
 from ib_async import *
 from math import isnan
 
+from ib_async import FuturesOption
+
 from ibstrat.ib_instance import connect_to_ib, ib
 from ibstrat.adaptive import close_at_time
 
@@ -8,23 +10,23 @@ from ibstrat.adaptive import close_at_time
 connect_to_ib('127.0.0.1',7500,33,1)
 
 # Define and qualify the individual legs
-short_put = Option(
-    symbol='SPX',
-    lastTradeDateOrContractMonth='20250711',
+short_put = FuturesOption(
+    symbol='ES',
+    lastTradeDateOrContractMonth='20250714',
     strike=6000,
     right='P',
-    multiplier='100',
-    exchange='CBOE',
+    multiplier='50',
+    exchange='CME',
     currency='USD'
 )
 
-long_put = Option(
-    symbol='SPX',
-    lastTradeDateOrContractMonth='20250711',
+long_put = FuturesOption(
+    symbol='ES',
+    lastTradeDateOrContractMonth='20250714',
     strike=5900,
     right='P',
-    multiplier='100',
-    exchange='CBOE',
+    multiplier='50',
+    exchange='CME',
     currency='USD'
 )
 
@@ -38,5 +40,5 @@ print(short_ticker)
 print(long_ticker)
 # Wait for market data to populate
 
-order = close_at_time(short_put,'BUY',1,False,'testadaptive','14:00:00', True,'DAY')
+order = close_at_time(short_put,'BUY',1,False,'test.py','20250714 14:00:00', False,'GTC')
 print(order)

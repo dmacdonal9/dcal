@@ -1,8 +1,8 @@
 # Default configuration (live trading)
-fri_57dc_symbols = ['ES']
-fri_37dc_symbols = ['ES']
-mon_dc_symbols = ['ES']
-wed_dc_symbols = ['ES']
+fri_57dc_symbols = ['ES','NQ']
+fri_37dc_symbols = ['ES','NQ']
+mon_dc_symbols = ['ES','NQ']
+wed_dc_symbols = ['ES','NQ']
 
 adaptive_priority = 'Normal'
 adjust_sleep_interval = 4
@@ -37,7 +37,7 @@ fri_57dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
     'QQQ': {
         "quantity": 1,
@@ -57,7 +57,7 @@ fri_57dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
     'NQ': {
         "quantity": 1,
@@ -77,7 +77,7 @@ fri_57dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
     'NDX': {
         "quantity": 1,
@@ -97,7 +97,7 @@ fri_57dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
     'RUT': {
         "quantity": 1,
@@ -117,7 +117,7 @@ fri_57dc_params = {
         "long_call_expiry_days": 21,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
     'ES': {
         "quantity": 2,
@@ -137,7 +137,7 @@ fri_57dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
 }
 
@@ -161,7 +161,7 @@ fri_37dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '18:00:00',  # 2PM Atlantic
     },
     'ES': {
         "quantity": 2,
@@ -181,7 +181,7 @@ fri_37dc_params = {
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
-        "close_time": '14:00:00',  # 2PM Atlantic
+        "close_time": '17:00:00',  # 2PM Atlantic
     },
     'QQQ': {
         "quantity": 1,
