@@ -120,7 +120,7 @@ fri_57dc_params = {
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'ES': {
-        "quantity": 2,
+        "quantity": 1,
         "strategy_tag": 'FDC57',
         "exchange": 'CME',
         "opt_exchange": 'CME',
@@ -164,7 +164,7 @@ fri_37dc_params = {
         "close_time": '18:00:00',  # 2PM Atlantic
     },
     'ES': {
-        "quantity": 2,
+        "quantity": 1,
         "strategy_tag": 'FDC37',
         "exchange": 'CME',
         "opt_exchange": 'CME',
@@ -315,7 +315,7 @@ mon_dc_params = {
         "mult": '50',
         "use_adaptive_on_combo": False,
         "use_adaptive_on_exit": False,
-        "quantity": 2,
+        "quantity": 1,
         "strategy_tag": 'MDC2427',
         "target_put_delta": 30,
         "target_call_delta": 18,
@@ -398,7 +398,7 @@ wed_dc_params = {
         "mult": '50',
         "use_adaptive_on_combo": False,
         "use_adaptive_on_exit": False,
-        "quantity": 2,
+        "quantity": 1,
         "strategy_tag": 'WDC78',
         "target_put_delta": 50,
         "target_call_delta": 40,
