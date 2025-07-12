@@ -157,7 +157,8 @@ def main():
     parser = argparse.ArgumentParser(description="Process double calendar options strategies.")
     parser.add_argument('-l', '--live', action='store_true', help="Use live orders?")
     parser.add_argument('-t', '--test', action='store_true', help="Use test TWS configuration.")
-    parser.add_argument('-m', '--monday', action='store_true', help="Submit Monday Double Calendar using Monday config.")
+    parser.add_argument('-m24', '--monday24', action='store_true', help="Submit Monday Double Calendar using Monday 24 config.")
+    parser.add_argument('-m37', '--monday37', action='store_true', help="Submit Monday Double Calendar using Monday 37 config.")
     parser.add_argument('-w', '--wednesday', action='store_true', help="Submit Wednesday Double Calendar using Wednesday config.")
     parser.add_argument('-f57', '--friday57', action='store_true', help="Submit Friday Double Calendar using 57 config.")
     parser.add_argument('-f37', '--friday37', action='store_true', help="Submit Friday Double Calendar using 37 config.")
@@ -178,10 +179,14 @@ def main():
         symbols = cfg.fri_37dc_symbols
         params = cfg.fri_37dc_params
         logger.info("Running Friday DC (37 config)")
-    elif args.monday:
-        symbols = cfg.mon_dc_symbols
-        params = cfg.mon_dc_params
-        logger.info("Running Monday DC")
+    elif args.monday24:
+        symbols = cfg.mon_dc24_symbols
+        params = cfg.mon_dc24_params
+        logger.info("Running Monday DC (24 config")
+    elif args.monday37:
+        symbols = cfg.mon_dc37_symbols
+        params = cfg.mon_dc37_params
+        logger.info("Running Monday DC (24 config")
     elif args.wednesday:
         symbols = cfg.wed_dc_symbols
         params = cfg.wed_dc_params

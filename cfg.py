@@ -1,7 +1,8 @@
 # Default configuration (live trading)
 fri_57dc_symbols = ['ES','NQ']
 fri_37dc_symbols = ['ES','NQ']
-mon_dc_symbols = ['ES','NQ']
+mon_24dc_symbols = ['ES','NQ']
+mon_37dc_symbols = ['ES','NQ']
 wed_dc_symbols = ['ES','NQ']
 
 adaptive_priority = 'Normal'
@@ -246,7 +247,7 @@ fri_37dc_params = {
 }
 
 # Monday Double Calendar Parameters (corrected)
-mon_dc_params = {
+mon_dc24_params = {
     'NQ': {
         "exchange": 'CME',
         "opt_exchange": 'CME',
@@ -322,6 +323,89 @@ mon_dc_params = {
         "short_put_expiry_days": 2,
         "short_call_expiry_days": 2,
         "long_put_expiry_days": 4,
+        "long_call_expiry_days": 7,
+        "profit_target_pct": -1,
+        "submit_auto_close": True,
+        "close_time": '17:00:00',  # 2PM Atlantic
+    },
+}
+
+mon_dc37_params = {
+    'NQ': {
+        "exchange": 'CME',
+        "opt_exchange": 'CME',
+        "sec_type": 'FUT',
+        "trading_class": '',
+        "mult": '20',
+        "use_adaptive_on_combo": False,
+        "use_adaptive_on_exit": False,
+        "quantity": 1,
+        "strategy_tag": 'MDC3377',
+        "target_put_delta": 20,
+        "target_call_delta": 20,
+        "short_put_expiry_days": 3,
+        "short_call_expiry_days": 3,
+        "long_put_expiry_days": 7,
+        "long_call_expiry_days": 7,
+        "profit_target_pct": -1,
+        "submit_auto_close": True,
+        "close_time": '17:00:00',  # 2PM Atlantic
+    },
+    'QQQ': {
+        "exchange": 'SMART',
+        "opt_exchange": 'CBOE',
+        "sec_type": 'STK',
+        "trading_class": '',
+        "mult": '100',
+        "use_adaptive_on_combo": False,
+        "use_adaptive_on_exit": False,
+        "quantity": 1,
+        "strategy_tag": 'MDC3377',
+        "target_put_delta": 20,
+        "target_call_delta": 20,
+        "short_put_expiry_days": 3,
+        "short_call_expiry_days": 3,
+        "long_put_expiry_days": 7,
+        "long_call_expiry_days": 7,
+        "profit_target_pct": -1,
+        "submit_auto_close": True,
+        "close_time": '17:00:00',  # 2PM Atlantic
+    },
+    'SPX': {
+        "exchange": 'CBOE',
+        "opt_exchange": 'CBOE',
+        "sec_type": 'IND',
+        "trading_class": 'SPXW',
+        "mult": '100',
+        "use_adaptive_on_combo": True,
+        "use_adaptive_on_exit": False,
+        "quantity": 1,
+        "strategy_tag": 'MDC3377',
+        "target_put_delta": 20,
+        "target_call_delta": 20,
+        "short_put_expiry_days": 3,
+        "short_call_expiry_days": 3,
+        "long_put_expiry_days": 7,
+        "long_call_expiry_days": 7,
+        "profit_target_pct": -1,
+        "submit_auto_close": True,
+        "close_time": '17:00:00',  # 2PM Atlantic
+    },
+    'ES': {
+        "exchange": 'CME',
+        "opt_exchange": 'CME',
+        "sec_type": 'FUT',
+        "trading_class": '',
+        "mult": '50',
+        "use_adaptive_on_combo": False,
+        "use_adaptive_on_exit": False,
+        "quantity": 1,
+        "strategy_tag": 'MDC3377',
+        "target_put_delta": 20,
+        "target_call_delta": 1208,
+        "short_put_expiry_days": 3,
+        "short_call_expiry_days": 3,
+        "long_put_expiry_days": 7,
         "long_call_expiry_days": 7,
         "profit_target_pct": -1,
         "submit_auto_close": True,
