@@ -1,8 +1,8 @@
 # Default configuration (live trading)
-fri_57dc_symbols = ['SPX']
-fri_37dc_symbols = ['SPX']
-mon_dc_symbols = ['SPX']
-wed_dc_symbols = ['SPX']
+fri_57dc_symbols = ['ES']
+fri_37dc_symbols = ['ES']
+mon_dc_symbols = ['ES']
+wed_dc_symbols = ['ES']
 
 adaptive_priority = 'Normal'
 adjust_sleep_interval = 4
@@ -120,7 +120,7 @@ fri_57dc_params = {
         "close_time": '14:00:00',  # 2PM Atlantic
     },
     'ES': {
-        "quantity": 1,
+        "quantity": 2,
         "strategy_tag": 'FDC57',
         "exchange": 'CME',
         "opt_exchange": 'CME',
@@ -152,6 +152,26 @@ fri_37dc_params = {
         "trading_class": 'SPXW',
         "mult": '100',
         "use_adaptive_on_combo": True,
+        "use_adaptive_on_exit": False,
+        "target_put_delta": 30,
+        "target_call_delta": 20,
+        "short_put_expiry_days": 3,
+        "short_call_expiry_days": 3,
+        "long_put_expiry_days": 7,
+        "long_call_expiry_days": 10,
+        "profit_target_pct": -1,
+        "submit_auto_close": True,
+        "close_time": '14:00:00',  # 2PM Atlantic
+    },
+    'ES': {
+        "quantity": 2,
+        "strategy_tag": 'FDC37',
+        "exchange": 'CME',
+        "opt_exchange": 'CME',
+        "sec_type": 'FUT',
+        "trading_class": '',
+        "mult": '50',
+        "use_adaptive_on_combo": False,
         "use_adaptive_on_exit": False,
         "target_put_delta": 30,
         "target_call_delta": 20,
@@ -287,6 +307,26 @@ mon_dc_params = {
         "submit_auto_close": True,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
+    'ES': {
+        "exchange": 'CME',
+        "opt_exchange": 'CME',
+        "sec_type": 'FUT',
+        "trading_class": '',
+        "mult": '50',
+        "use_adaptive_on_combo": False,
+        "use_adaptive_on_exit": False,
+        "quantity": 2,
+        "strategy_tag": 'MDC2427',
+        "target_put_delta": 30,
+        "target_call_delta": 18,
+        "short_put_expiry_days": 2,
+        "short_call_expiry_days": 2,
+        "long_put_expiry_days": 4,
+        "long_call_expiry_days": 7,
+        "profit_target_pct": -1,
+        "submit_auto_close": True,
+        "close_time": '17:00:00',  # 2PM Atlantic
+    },
 }
 
 wed_dc_params = {
@@ -316,7 +356,7 @@ wed_dc_params = {
         "sec_type": 'STK',
         "trading_class": '',
         "mult": '100',
-        "use_adaptive_on_combo": False,
+        "use_adaptive_on_combo": True,
         "use_adaptive_on_exit": False,
         "strategy_tag": 'WDC78',
         "quantity": 1,
@@ -336,9 +376,29 @@ wed_dc_params = {
         "sec_type": 'IND',
         "trading_class": 'SPXW',
         "mult": '100',
-        "use_adaptive_on_combo": False,
+        "use_adaptive_on_combo": True,
         "use_adaptive_on_exit": False,
         "quantity": 1,
+        "strategy_tag": 'WDC78',
+        "target_put_delta": 50,
+        "target_call_delta": 40,
+        "short_put_expiry_days": 7,
+        "short_call_expiry_days": 7,
+        "long_put_expiry_days": 8,
+        "long_call_expiry_days": 9,
+        "profit_target_pct": -1,
+        "submit_auto_close": True,
+        "close_time": '17:00:00',  # 1PM Atlantic
+    },
+    'ES': {
+        "exchange": 'CME',
+        "opt_exchange": 'CME',
+        "sec_type": 'FUT',
+        "trading_class": '',
+        "mult": '50',
+        "use_adaptive_on_combo": False,
+        "use_adaptive_on_exit": False,
+        "quantity": 2,
         "strategy_tag": 'WDC78',
         "target_put_delta": 50,
         "target_call_delta": 40,
