@@ -188,8 +188,8 @@ def main():
         params = cfg.mon_dc37_params
         logger.info("Running Monday DC (24 config")
     elif args.wednesday:
-        symbols = cfg.wed_dc_symbols
-        params = cfg.wed_dc_params
+        symbols = cfg.wed_dc78_symbols
+        params = cfg.wed_dc78_params
         logger.info("Running Wednesday DC")
     else:
         logger.error("You must specify a valid configuration: -f57, -f37, -m, or -w.")

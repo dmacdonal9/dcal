@@ -1,9 +1,9 @@
 # Default configuration (live trading)
 fri_57dc_symbols = ['ES','NQ']
 fri_37dc_symbols = ['ES','NQ']
-mon_24dc_symbols = ['ES','NQ']
-mon_37dc_symbols = ['ES','NQ']
-wed_dc_symbols = ['ES','NQ']
+mon_dc24_symbols = ['ES','NQ']
+mon_dc37_symbols = ['ES','NQ']
+wed_dc78_symbols = ['ES', 'NQ']
 
 adaptive_priority = 'Normal'
 adjust_sleep_interval = 3
@@ -413,7 +413,7 @@ mon_dc37_params = {
     },
 }
 
-wed_dc_params = {
+wed_dc78_params = {
     'NQ': {
         "exchange": 'NASDAQ',
         "opt_exchange": 'CME',
