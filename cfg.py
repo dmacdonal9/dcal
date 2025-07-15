@@ -1,6 +1,6 @@
 # Default configuration (live trading)
 fri_57dc_symbols = ['ES','NQ']
-fri_37dc_symbols = ['ES','NQ']
+fri_67dc_symbols = ['ES', 'NQ']
 mon_dc24_symbols = ['ES','NQ']
 mon_dc37_symbols = ['ES','NQ']
 wed_dc78_symbols = ['ES', 'NQ']
@@ -143,10 +143,10 @@ fri_57dc_params = {
 }
 
 # Friday Double Calendar Parameters (secondary)
-fri_37dc_params = {
+fri_67dc_params = {
     'SPX': {
         "quantity": 1,
-        "strategy_tag": 'FDC37',
+        "strategy_tag": 'FDC67',
         "exchange": 'CBOE',
         "opt_exchange": 'CBOE',
         "sec_type": 'IND',
@@ -154,19 +154,19 @@ fri_37dc_params = {
         "mult": '100',
         "use_adaptive_on_combo": True,
         "use_adaptive_on_exit": False,
-        "target_put_delta": 30,
+        "target_put_delta": 20,
         "target_call_delta": 20,
-        "short_put_expiry_days": 3,
-        "short_call_expiry_days": 3,
+        "short_put_expiry_days": 6,
+        "short_call_expiry_days": 6,
         "long_put_expiry_days": 7,
-        "long_call_expiry_days": 7,
+        "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
         "close_time": '18:00:00',  # 2PM Atlantic
     },
     'ES': {
         "quantity": 1,
-        "strategy_tag": 'FDC37',
+        "strategy_tag": 'FDC67',
         "exchange": 'CME',
         "opt_exchange": 'CME',
         "sec_type": 'FUT',
@@ -174,19 +174,19 @@ fri_37dc_params = {
         "mult": '50',
         "use_adaptive_on_combo": False,
         "use_adaptive_on_exit": False,
-        "target_put_delta": 30,
+        "target_put_delta": 20,
         "target_call_delta": 20,
-        "short_put_expiry_days": 3,
-        "short_call_expiry_days": 3,
+        "short_put_expiry_days": 6,
+        "short_call_expiry_days": 6,
         "long_put_expiry_days": 7,
-        "long_call_expiry_days": 7,
+        "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'QQQ': {
         "quantity": 1,
-        "strategy_tag": 'FDC37',
+        "strategy_tag": 'FDC67',
         "exchange": 'CBOE',
         "opt_exchange": 'CBOE',
         "sec_type": 'STK',
@@ -194,19 +194,19 @@ fri_37dc_params = {
         "mult": '100',
         "use_adaptive_on_combo": True,
         "use_adaptive_on_exit": False,
-        "target_put_delta": 30,
+        "target_put_delta": 20,
         "target_call_delta": 20,
-        "short_put_expiry_days": 3,
-        "short_call_expiry_days": 3,
+        "short_put_expiry_days": 6,
+        "short_call_expiry_days": 6,
         "long_put_expiry_days": 7,
-        "long_call_expiry_days": 7,
+        "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'NQ': {
         "quantity": 1,
-        "strategy_tag": 'FDC37',
+        "strategy_tag": 'FDC67',
         "exchange": 'CME',
         "opt_exchange": 'CME',
         "sec_type": 'FUT',
@@ -214,19 +214,19 @@ fri_37dc_params = {
         "mult": '20',
         "use_adaptive_on_combo": False,
         "use_adaptive_on_exit": False,
-        "target_put_delta": 30,
+        "target_put_delta": 20,
         "target_call_delta": 20,
-        "short_put_expiry_days": 3,
-        "short_call_expiry_days": 3,
+        "short_put_expiry_days": 6,
+        "short_call_expiry_days": 6,
         "long_put_expiry_days": 7,
-        "long_call_expiry_days": 7,
+        "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'NDX': {
         "quantity": 1,
-        "strategy_tag": 'FDC37',
+        "strategy_tag": 'FDC67',
         "exchange": 'NASDAQ',
         "opt_exchange": 'CBOE',
         "sec_type": 'IND',
@@ -234,12 +234,12 @@ fri_37dc_params = {
         "mult": '100',
         "use_adaptive_on_combo": True,
         "use_adaptive_on_exit": False,
-        "target_put_delta": 30,
+        "target_put_delta": 20,
         "target_call_delta": 20,
-        "short_put_expiry_days": 3,
-        "short_call_expiry_days": 3,
+        "short_put_expiry_days": 6,
+        "short_call_expiry_days": 6,
         "long_put_expiry_days": 7,
-        "long_call_expiry_days": 7,
+        "long_call_expiry_days": 10,
         "profit_target_pct": -1,
         "submit_auto_close": True,
         "close_time": '17:00:00',  # 2PM Atlantic

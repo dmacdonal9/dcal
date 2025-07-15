@@ -159,9 +159,9 @@ def main():
     parser.add_argument('-t', '--test', action='store_true', help="Use test TWS configuration.")
     parser.add_argument('-m24', '--monday24', action='store_true', help="Submit Monday Double Calendar using Monday 24 config.")
     parser.add_argument('-m37', '--monday37', action='store_true', help="Submit Monday Double Calendar using Monday 37 config.")
-    parser.add_argument('-w', '--wednesday', action='store_true', help="Submit Wednesday Double Calendar using Wednesday config.")
+    parser.add_argument('-w78', '--wednesday78', action='store_true', help="Submit Wednesday Double Calendar using Wednesday config.")
     parser.add_argument('-f57', '--friday57', action='store_true', help="Submit Friday Double Calendar using 57 config.")
-    parser.add_argument('-f37', '--friday37', action='store_true', help="Submit Friday Double Calendar using 37 config.")
+    parser.add_argument('-f67', '--friday37', action='store_true', help="Submit Friday Double Calendar using 37 config.")
 
     args = parser.parse_args()
 
@@ -175,10 +175,10 @@ def main():
         symbols = cfg.fri_57dc_symbols
         params = cfg.fri_57dc_params
         logger.info("Running Friday DC (57 config)")
-    elif args.friday37:
-        symbols = cfg.fri_37dc_symbols
-        params = cfg.fri_37dc_params
-        logger.info("Running Friday DC (37 config)")
+    elif args.friday67:
+        symbols = cfg.fri_67dc_symbols
+        params = cfg.fri_67dc_params
+        logger.info("Running Friday DC (67 config)")
     elif args.monday24:
         symbols = cfg.mon_dc24_symbols
         params = cfg.mon_dc24_params
@@ -187,12 +187,12 @@ def main():
         symbols = cfg.mon_dc37_symbols
         params = cfg.mon_dc37_params
         logger.info("Running Monday DC (24 config")
-    elif args.wednesday:
+    elif args.wednesday78:
         symbols = cfg.wed_dc78_symbols
         params = cfg.wed_dc78_params
         logger.info("Running Wednesday DC")
     else:
-        logger.error("You must specify a valid configuration: -f57, -f37, -m, or -w.")
+        logger.error("You must specify a valid configuration: -f57, -f67, -m24, -m37, or -w78.")
         return
 
     live_orders = args.live
