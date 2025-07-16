@@ -8,7 +8,7 @@ from ibstrat.market_data import get_combo_prices
 from ibstrat.trclass import get_trading_class_for_symbol
 from ibstrat.ticksize import get_tick_size, adjust_to_tick_size
 import cfg
-
+from ibstrat.pushover import send_notification
 
 logger = logging.getLogger('DC')
 
@@ -159,6 +159,8 @@ def submit_double_calendar(und_contract,
         if not trade:
             logger.error(f"Failed to submit Double Calendar order for {und_contract.symbol}.")
             return None
+        if cfg.pushover_alerts:
+            send_notification("Opened dcal")
 
         return trade
 

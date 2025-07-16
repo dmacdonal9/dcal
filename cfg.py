@@ -7,6 +7,7 @@ wed_dc78_symbols = ['ES', 'NQ']
 
 adaptive_priority = 'Normal'
 adjust_sleep_interval = 3
+pushover_alerts = True
 
 # IBKR Connection Parameters
 ib_host = '127.0.0.1'
