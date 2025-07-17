@@ -1,9 +1,9 @@
 # Default configuration (live trading)
 fri_57dc_symbols = ['ES','NQ']
-fri_67dc_symbols = ['ES', 'NQ']
+fri_67dc_symbols = ['ES','NQ']
 mon_dc24_symbols = ['ES','NQ']
 mon_dc37_symbols = ['ES','NQ']
-wed_dc78_symbols = ['ES', 'NQ']
+wed_dc78_symbols = ['ES','NQ']
 
 adaptive_priority = 'Normal'
 adjust_sleep_interval = 3
