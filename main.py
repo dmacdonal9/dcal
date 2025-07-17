@@ -161,7 +161,7 @@ def main():
     parser.add_argument('-m37', '--monday37', action='store_true', help="Submit Monday Double Calendar using Monday 37 config.")
     parser.add_argument('-w78', '--wednesday78', action='store_true', help="Submit Wednesday Double Calendar using Wednesday config.")
     parser.add_argument('-f57', '--friday57', action='store_true', help="Submit Friday Double Calendar using 57 config.")
-    parser.add_argument('-f67', '--friday37', action='store_true', help="Submit Friday Double Calendar using 37 config.")
+    parser.add_argument('-f67', '--friday67', action='store_true', help="Submit Friday Double Calendar using 37 config.")
 
     args = parser.parse_args()
 
