@@ -26,7 +26,6 @@ def submit_double_calendar(und_contract,
         quantity = strategy_params["quantity"]
         strategy_tag = strategy_params["strategy_tag"]
         trading_class = get_trading_class_for_symbol(und_contract.symbol)
-        profit_target_pct = strategy_params.get("profit_target_pct")
         submit_auto_close = strategy_params.get("submit_auto_close")
         use_adaptive_on_combo = strategy_params.get("use_adaptive_on_combo")
         use_adaptive_on_exit = strategy_params.get("use_adaptive_on_exit")
@@ -114,9 +113,11 @@ def submit_double_calendar(und_contract,
             logger.debug(f"Trade submitted: {trade}")
             # Adjust orders if necessary
             if is_live:
+                logger.info(f"Calling adj_price_for_order()")
                 adj_price_for_order(trade.order.orderId,100,cfg.adjust_sleep_interval)
 
         if trade and submit_auto_close:
+            logger.info(f"Calling wait_for_order_fill()")
             if wait_for_order_fill(trade.order.orderId, 500):
                 close_result = close_at_time(
                     order_contract=bag_contract,
