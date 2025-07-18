@@ -85,57 +85,31 @@ def submit_double_calendar(und_contract,
 
         # Handle futures and options differently
         if use_adaptive_on_combo:
-            # Submit an adaptive market order for non-futures
+            # Submit an adaptive market order
             logger.info(f"Submitting adaptive order for {und_contract.symbol}")
-            if profit_target_pct > 0:
-                logger.info(f"Using profit taker for {profit_target_pct}")
-                trade = submit_adaptive_order_with_pt(
-                    order_contract=bag_contract,
-                    est_price=mid,
-                    pt_pct=profit_target_pct,
-                    order_type='MKT',
-                    action='BUY',
-                    is_live=is_live,
-                    quantity=quantity,
-                    order_ref=strategy_tag,
-                    adaptive_priority=cfg.adaptive_priority
-                )
-            else:
-                trade = submit_adaptive_order(
-                    order_contract=bag_contract,
-                    order_type='MKT',
-                    action='BUY',
-                    is_live=is_live,
-                    quantity=quantity,
-                    order_ref=strategy_tag,
-                    adaptive_priority=cfg.adaptive_priority
-                )
+            trade = submit_adaptive_order(
+                order_contract=bag_contract,
+                order_type='MKT',
+                action='BUY',
+                is_live=is_live,
+                quantity=quantity,
+                order_ref=strategy_tag,
+                adaptive_priority=cfg.adaptive_priority
+            )
             ib.sleep(cfg.adjust_sleep_interval)
         else:
             # Submit a limit order using the mid price less 1 tick
             contract_tick = get_tick_size(und_contract.symbol, mid)
             order_limit_price = adjust_to_tick_size(mid, contract_tick) - contract_tick
             logger.debug(f"Limit order price adjusted from {mid} to {order_limit_price} for {und_contract.symbol}")
-            if profit_target_pct > 0:
-                logger.info(f"Using profit taker for {profit_target_pct}")
-                trade = submit_limit_order_with_pt(
-                    order_contract=bag_contract,
-                    est_price=order_limit_price,
-                    pt_pct=profit_target_pct,
-                    action='BUY',
-                    is_live=is_live,
-                    quantity=quantity,
-                    order_ref=strategy_tag
-                )
-            else:
-                trade = submit_limit_order(
-                    order_contract=bag_contract,
-                    limit_price=order_limit_price,
-                    action='BUY',
-                    is_live=is_live,
-                    quantity=quantity,
-                    strategy_tag=strategy_tag
-                )
+            trade = submit_limit_order(
+                order_contract=bag_contract,
+                limit_price=order_limit_price,
+                action='BUY',
+                is_live=is_live,
+                quantity=quantity,
+                strategy_tag=strategy_tag
+            )
             ib.sleep(cfg.adjust_sleep_interval)
             logger.debug(f"Trade submitted: {trade}")
             # Adjust orders if necessary

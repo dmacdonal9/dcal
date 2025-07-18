@@ -165,11 +165,6 @@ def main():
 
     args = parser.parse_args()
 
-    # Ensure mutually exclusive options for Friday configurations
-    if args.friday57 and args.friday37:
-        logger.error("Arguments -f57 and -f37 are mutually exclusive. Please use only one.")
-        return
-
     # Determine the selected configuration
     if args.friday57:
         symbols = cfg.fri_57dc_symbols
