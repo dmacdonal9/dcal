@@ -2,7 +2,7 @@
 fri_57dc_symbols = ['SPX']
 fri_67dc_symbols = ['SPX']
 mon_dc24_symbols = ['SPX']
-mon_dc37_symbols = ['ES']
+mon_dc37_symbols = ['ES','NQ']
 wed_dc78_symbols = ['SPX']
 
 adaptive_priority = 'Normal'
