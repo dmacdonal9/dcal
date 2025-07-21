@@ -112,7 +112,7 @@ def submit_double_calendar(und_contract,
             ib.sleep(cfg.adjust_sleep_interval)
             logger.debug(f"Trade submitted: {trade}")
             # Adjust orders if necessary
-            if is_live:
+            if trade and is_live:
                 logger.info(f"Calling adj_price_for_order()")
                 adj_price_for_order(trade.order.orderId,100,cfg.adjust_sleep_interval)
 
