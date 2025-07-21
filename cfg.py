@@ -1,9 +1,9 @@
 # Default configuration (live trading)
-fri_57dc_symbols = ['ES']
-fri_67dc_symbols = ['ES']
-mon_dc24_symbols = ['ES']
-mon_dc37_symbols = ['ES']
-wed_dc78_symbols = ['ES']
+fri_57dc_symbols = ['SPX']
+fri_67dc_symbols = ['SPX']
+mon_dc24_symbols = ['SPX']
+mon_dc37_symbols = ['SPX']
+wed_dc78_symbols = ['SPX']
 
 adaptive_priority = 'Normal'
 adjust_sleep_interval = 3
