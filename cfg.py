@@ -403,7 +403,7 @@ mon_dc37_params = {
         "quantity": 2,
         "strategy_tag": 'MDC3377',
         "target_put_delta": 20,
-        "target_call_delta": 1208,
+        "target_call_delta": 20,
         "short_put_expiry_days": 3,
         "short_call_expiry_days": 3,
         "long_put_expiry_days": 7,
