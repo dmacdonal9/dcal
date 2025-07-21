@@ -71,7 +71,7 @@ def submit_double_calendar(und_contract,
 
         # Define actions and ratios for the legs
         leg_actions = ['BUY', 'SELL', 'BUY', 'SELL']
-        ratios = [quantity] * 4
+        ratios = 1
 
         # Create the combo bag contract
         bag_contract = create_bag(und_contract, legs, leg_actions, ratios)
