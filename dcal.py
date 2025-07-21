@@ -4,7 +4,7 @@ from ibstrat.orders import create_bag, submit_limit_order, adj_price_for_order, 
 from ibstrat.adaptive import submit_adaptive_order, submit_adaptive_order_with_pt,close_at_time
 from ibstrat.positions import check_positions
 from ibstrat.ib_instance import ib
-from ibstrat.market_data import get_combo_prices
+from ibstrat.market_data import get_bag_prices
 from ibstrat.trclass import get_trading_class_for_symbol
 from ibstrat.ticksize import get_tick_size, adjust_to_tick_size
 import cfg
@@ -79,7 +79,7 @@ def submit_double_calendar(und_contract,
 
         logger.info(f"Combo contract created for {und_contract.symbol} with {len(legs)} legs.")
 
-        bid, mid, ask = get_combo_prices([(legs[i], leg_actions[i], ratios[i]) for i in range(len(legs))])
+        bid, mid, ask = get_bag_prices(bag_contract)
         logger.info(f"Combo prices: Bid: {bid}, Mid: {mid}, Ask: {ask}")
 
         # Handle futures and options differently
