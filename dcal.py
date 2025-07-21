@@ -97,9 +97,9 @@ def submit_double_calendar(und_contract,
             )
             ib.sleep(cfg.adjust_sleep_interval)
         else:
-            # Submit a limit order using the mid price less 1 tick
+            # Submit a limit order using the mid price
             contract_tick = get_tick_size(und_contract.symbol, mid)
-            order_limit_price = adjust_to_tick_size(mid, contract_tick) - contract_tick
+            order_limit_price = adjust_to_tick_size(mid, contract_tick)
             logger.debug(f"Limit order price adjusted from {mid} to {order_limit_price} for {und_contract.symbol}")
             trade = submit_limit_order(
                 order_contract=bag_contract,
