@@ -5,6 +5,7 @@ from ibstrat.adaptive import submit_adaptive_order, submit_adaptive_order_with_p
 from ibstrat.positions import check_positions
 from ibstrat.ib_instance import ib
 from ibstrat.market_data import get_bag_prices
+from ibstrat.tradelog import log_trade_details
 from ibstrat.trclass import get_trading_class_for_symbol
 from ibstrat.ticksize import get_tick_size, adjust_to_tick_size
 import cfg
@@ -136,6 +137,16 @@ def submit_double_calendar(und_contract,
             return None
         if cfg.pushover_alerts:
             send_notification("Opened dcal")
+
+        if trade and is_live and cfg.log_trade_fills:
+            logger.info("Calling log_trade_details()")
+            log_trade_details(und_contract=und_contract,
+                              trade_contract=bag_contract,
+                              mid_price=mid,
+                              trade=trade,
+                              timeout=cfg.trade_fill_timeout,
+                              sheet_id=cfg.trade_log_sheet_id,
+                              strategy_tag=cfg.myStrategyTag)
 
         return trade
 

@@ -9,6 +9,11 @@ adaptive_priority = 'Normal'
 adjust_sleep_interval = 3
 pushover_alerts = True
 
+#tradelog
+trade_fill_timeout = 120
+log_trade_fills = True
+trade_log_sheet_id = "1y9hYBzSA4g8n92VkEgQp_JKu_F-XyI02RmbGjXin0hU"
+
 # IBKR Connection Parameters
 ib_host = '127.0.0.1'
 ib_port = 7496  # Default live trading port
