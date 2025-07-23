@@ -3,7 +3,7 @@ fri_57dc_symbols = ['ES','NQ']
 fri_67dc_symbols = ['ES','NQ']
 mon_dc24_symbols = ['ES','NQ']
 mon_dc37_symbols = ['ES','NQ']
-wed_dc78_symbols = ['ES','NQ']
+wed_dc78_symbols = ['NQ']
 
 adaptive_priority = 'Normal'
 adjust_sleep_interval = 3
@@ -20,7 +20,7 @@ ib_port = 7496  # Default live trading port
 ib_clientid = 3  # Client ID for live trading
 
 # Testing configuration
-test_ib_host = '127.0.0.1'
+test_ib_host = 'dte'
 test_ib_port = 7500  # Port for test TWS
 test_ib_clientid = 3  # Client ID for test TWS
 
@@ -421,7 +421,7 @@ mon_dc37_params = {
 
 wed_dc78_params = {
     'NQ': {
-        "exchange": 'NASDAQ',
+        "exchange": 'CME',
         "opt_exchange": 'CME',
         "sec_type": 'FUT',
         "trading_class": '',
