@@ -146,7 +146,7 @@ def submit_double_calendar(und_contract,
                               trade=trade,
                               timeout=cfg.trade_fill_timeout,
                               sheet_id=cfg.trade_log_sheet_id,
-                              strategy_tag=cfg.myStrategyTag)
+                              strategy_tag=strategy_tag)
 
         return trade
 
