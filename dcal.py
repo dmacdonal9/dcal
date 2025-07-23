@@ -140,7 +140,8 @@ def submit_double_calendar(und_contract,
 
         if trade and is_live and cfg.log_trade_fills:
             logger.info("Calling log_trade_details()")
-            log_trade_details(und_contract=und_contract,
+            log_trade_details(ib=ib,
+                              und_contract=und_contract,
                               trade_contract=bag_contract,
                               mid_price=mid,
                               trade=trade,
