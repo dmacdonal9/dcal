@@ -12,7 +12,6 @@ google-auth-httplib2
 googleapis-common-protos
 holidays
 httplib2
-ib-insync
 ib_async
 idna
 korean-lunar-calendar
