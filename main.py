@@ -91,7 +91,7 @@ def open_double_calendar(symbol: str, params: dict, is_live: bool):
         logger.debug(f"Option chains fetched. Calculating strikes...")
         short_call_strike = find_option_by_target_delta(short_call_tickers, 'C', params["target_call_delta"],
                                                         trading_class=params['trading_class']).contract.strike
-        logger.debug(f"short call found: {short_call_strike}") #dsm
+        logger.debug(f"short call found: {short_call_strike}")
 
         short_put_strike = find_option_by_target_delta(short_put_tickers, 'P', params["target_put_delta"],
                                                        trading_class=params['trading_class']).contract.strike
