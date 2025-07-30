@@ -1,4 +1,6 @@
 import logging
+from math import isnan
+
 from ibstrat.qualify import qualify_contract
 from ibstrat.orders import create_bag, submit_limit_order, adj_price_for_order, submit_limit_order_with_pt, wait_for_order_fill
 from ibstrat.adaptive import submit_adaptive_order, submit_adaptive_order_with_pt,close_at_time
@@ -85,6 +87,10 @@ def submit_double_calendar(und_contract,
         logger.info(f"Combo prices: Bid: {bid}, Mid: {mid}, Ask: {ask}")
 
         # Handle futures and options differently
+        if bid <= 0 or mid <= 0 or ask <= 0 or isnan(bid) or isnan(mid) or isnan(ask):
+            logger.error(f"Bid or mid or ask are invalid pricers: {bid}, {mid}, {ask}")
+            return None
+
         if use_adaptive_on_combo:
             # Submit an adaptive market order
             logger.info(f"Submitting adaptive order for {und_contract.symbol}")
