@@ -48,6 +48,7 @@ def submit_double_calendar(und_contract,
         ]
         if check_positions(und_contract.symbol, pos_check_list):
             logger.warning(f"Collisions detected on strikes, aborting trade.")
+            send_notification("DC aborted due to strike collision")
             return None
 
         # Qualify contracts for each leg
