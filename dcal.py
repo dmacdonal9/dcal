@@ -143,7 +143,7 @@ def submit_double_calendar(und_contract,
             logger.error(f"Failed to submit Double Calendar order for {und_contract.symbol}.")
             return None
         if cfg.pushover_alerts:
-            send_notification("Opened dcal")
+            send_notification(f"Opened dcal {strategy_tag} for {und_contract.symbol}")
 
         if trade and is_live and cfg.log_trade_fills:
             logger.info("Calling log_trade_details()")
