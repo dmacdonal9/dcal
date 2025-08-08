@@ -162,33 +162,50 @@ def main():
     parser.add_argument('-w78', '--wednesday78', action='store_true', help="Submit Wednesday Double Calendar using Wednesday config.")
     parser.add_argument('-f57', '--friday57', action='store_true', help="Submit Friday Double Calendar using 57 config.")
     parser.add_argument('-f67', '--friday67', action='store_true', help="Submit Friday Double Calendar using 37 config.")
+    parser.add_argument('-s', '--symbol', type=str, help="Trade a specific symbol only (overrides config list).")
 
     args = parser.parse_args()
 
-    # Determine the selected configuration
-    if args.friday57:
-        symbols = cfg.fri_57dc_symbols
-        params = cfg.fri_57dc_params
-        logger.info("Running Friday DC (57 config)")
-    elif args.friday67:
-        symbols = cfg.fri_67dc_symbols
-        params = cfg.fri_67dc_params
-        logger.info("Running Friday DC (67 config)")
-    elif args.monday24:
-        symbols = cfg.mon_dc24_symbols
-        params = cfg.mon_dc24_params
-        logger.info("Running Monday DC (24 config")
-    elif args.monday37:
-        symbols = cfg.mon_dc37_symbols
-        params = cfg.mon_dc37_params
-        logger.info("Running Monday DC (24 config")
-    elif args.wednesday78:
-        symbols = cfg.wed_dc78_symbols
-        params = cfg.wed_dc78_params
-        logger.info("Running Wednesday DC")
+    if args.symbol:
+        symbol = args.symbol
+        all_params = {
+            **cfg.fri_57dc_params,
+            **cfg.fri_67dc_params,
+            **cfg.mon_dc24_params,
+            **cfg.mon_dc37_params,
+            **cfg.wed_dc78_params
+        }
+        if symbol not in all_params:
+            logger.error(f"Symbol '{symbol}' not found in any config parameters.")
+            return
+        symbols = [symbol]
+        params = {symbol: all_params[symbol]}
+        logger.info(f"Running single symbol DC for {symbol}")
     else:
-        logger.error("You must specify a valid configuration: -f57, -f67, -m24, -m37, or -w78.")
-        return
+        # Determine the selected configuration
+        if args.friday57:
+            symbols = cfg.fri_57dc_symbols
+            params = cfg.fri_57dc_params
+            logger.info("Running Friday DC (57 config)")
+        elif args.friday67:
+            symbols = cfg.fri_67dc_symbols
+            params = cfg.fri_67dc_params
+            logger.info("Running Friday DC (67 config)")
+        elif args.monday24:
+            symbols = cfg.mon_dc24_symbols
+            params = cfg.mon_dc24_params
+            logger.info("Running Monday DC (24 config")
+        elif args.monday37:
+            symbols = cfg.mon_dc37_symbols
+            params = cfg.mon_dc37_params
+            logger.info("Running Monday DC (24 config")
+        elif args.wednesday78:
+            symbols = cfg.wed_dc78_symbols
+            params = cfg.wed_dc78_params
+            logger.info("Running Wednesday DC")
+        else:
+            logger.error("You must specify a valid configuration: -f57, -f67, -m24, -m37, or -w78.")
+            return
 
     live_orders = args.live
     use_test_tws = args.test
