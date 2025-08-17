@@ -63,7 +63,7 @@ fri_57dc_params = {
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'NQ': {
@@ -83,27 +83,7 @@ fri_57dc_params = {
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
-        "close_time": '17:00:00',  # 2PM Atlantic
-    },
-    'NDX': {
-        "quantity": 1,
-        "strategy_tag": 'FDC57',
-        "exchange": 'NASDAQ',
-        "opt_exchange": 'CBOE',
-        "sec_type": 'IND',
-        "trading_class": 'NDXP',
-        "mult": '100',
-        "use_adaptive_on_combo": True,
-        "use_adaptive_on_exit": False,
-        "target_put_delta": 20,
-        "target_call_delta": 20,
-        "short_put_expiry_days": 5,
-        "short_call_expiry_days": 5,
-        "long_put_expiry_days": 7,
-        "long_call_expiry_days": 10,
-        "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'RUT': {
@@ -123,7 +103,7 @@ fri_57dc_params = {
         "long_put_expiry_days": 21,
         "long_call_expiry_days": 21,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'ES': {
@@ -143,7 +123,7 @@ fri_57dc_params = {
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
 }
@@ -187,7 +167,7 @@ fri_67dc_params = {
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'QQQ': {
@@ -207,7 +187,7 @@ fri_67dc_params = {
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'NQ': {
@@ -227,7 +207,7 @@ fri_67dc_params = {
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 10,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'NDX': {
@@ -271,7 +251,7 @@ mon_dc24_params = {
         "long_put_expiry_days": 4,
         "long_call_expiry_days": 7,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'QQQ': {
@@ -291,7 +271,7 @@ mon_dc24_params = {
         "long_put_expiry_days": 4,
         "long_call_expiry_days": 7,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'SPX': {
@@ -331,7 +311,7 @@ mon_dc24_params = {
         "long_put_expiry_days": 4,
         "long_call_expiry_days": 7,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
 }
@@ -354,7 +334,7 @@ mon_dc37_params = {
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 7,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'QQQ': {
@@ -374,7 +354,7 @@ mon_dc37_params = {
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 7,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'SPX': {
@@ -414,7 +394,7 @@ mon_dc37_params = {
         "long_put_expiry_days": 7,
         "long_call_expiry_days": 7,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
 }
@@ -437,7 +417,7 @@ wed_dc78_params = {
         "long_put_expiry_days": 8,
         "long_call_expiry_days": 9,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 1PM Atlantic
     },
     'QQQ': {
@@ -457,7 +437,7 @@ wed_dc78_params = {
         "long_put_expiry_days": 8,
         "long_call_expiry_days": 9,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 2PM Atlantic
     },
     'SPX': {
@@ -497,7 +477,7 @@ wed_dc78_params = {
         "long_put_expiry_days": 8,
         "long_call_expiry_days": 9,
         "profit_target_pct": -1,
-        "submit_auto_close": True,
+        "submit_auto_close": False,
         "close_time": '17:00:00',  # 1PM Atlantic
     },
 }
