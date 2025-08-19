@@ -4,6 +4,7 @@ fri_67dc_symbols = ['ES']
 mon_dc24_symbols = ['ES']
 mon_dc37_symbols = ['ES']
 wed_dc78_symbols = ['ES']
+wed_dc15_symbols = ['ES']
 
 adaptive_priority = 'Normal'
 adjust_sleep_interval = 3
@@ -478,6 +479,89 @@ wed_dc78_params = {
         "long_call_expiry_days": 9,
         "profit_target_pct": -1,
         "submit_auto_close": False,
+        "close_time": '17:00:00',  # 1PM Atlantic
+    },
+}
+
+wed_dc15_params = {
+    'NQ': {
+        "exchange": 'CME',
+        "opt_exchange": 'CME',
+        "sec_type": 'FUT',
+        "trading_class": '',
+        "mult": '20',
+        "use_adaptive_on_combo": False,
+        "use_adaptive_on_exit": False,
+        "strategy_tag": 'WDC78',
+        "quantity": 1,
+        "target_put_delta": 15,
+        "target_call_delta": 15,
+        "short_put_expiry_days": 1,
+        "short_call_expiry_days": 1,
+        "long_put_expiry_days": 5,
+        "long_call_expiry_days": 7,
+        "profit_target_pct": -1,
+        "submit_auto_close": False,
+        "close_time": '17:00:00',  # 1PM Atlantic
+    },
+    'QQQ': {
+        "exchange": 'SMART',
+        "opt_exchange": 'SMART',
+        "sec_type": 'STK',
+        "trading_class": '',
+        "mult": '100',
+        "use_adaptive_on_combo": True,
+        "use_adaptive_on_exit": False,
+        "strategy_tag": 'WDC15',
+        "quantity": 1,
+        "target_put_delta": 15,
+        "target_call_delta": 15,
+        "short_put_expiry_days": 1,
+        "short_call_expiry_days": 1,
+        "long_put_expiry_days": 5,
+        "long_call_expiry_days": 7,
+        "profit_target_pct": -1,
+        "submit_auto_close": True,
+        "close_time": '17:00:00',  # 2PM Atlantic
+    },
+    'SPX': {
+        "exchange": 'CBOE',
+        "opt_exchange": 'CBOE',
+        "sec_type": 'IND',
+        "trading_class": 'SPXW',
+        "mult": '100',
+        "use_adaptive_on_combo": True,
+        "use_adaptive_on_exit": False,
+        "quantity": 1,
+        "strategy_tag": 'WDC15',
+        "target_put_delta": 15,
+        "target_call_delta": 15,
+        "short_put_expiry_days": 1,
+        "short_call_expiry_days": 1,
+        "long_put_expiry_days": 5,
+        "long_call_expiry_days": 7,
+        "profit_target_pct": -1,
+        "submit_auto_close": True,
+        "close_time": '17:00:00',  # 1PM Atlantic
+    },
+    'ES': {
+        "exchange": 'CME',
+        "opt_exchange": 'CME',
+        "sec_type": 'FUT',
+        "trading_class": '',
+        "mult": '50',
+        "use_adaptive_on_combo": False,
+        "use_adaptive_on_exit": False,
+        "quantity": 2,
+        "strategy_tag": 'WDC15',
+        "target_put_delta": 15,
+        "target_call_delta": 15,
+        "short_put_expiry_days": 1,
+        "short_call_expiry_days": 1,
+        "long_put_expiry_days": 5,
+        "long_call_expiry_days": 7,
+        "profit_target_pct": -1,
+        "submit_auto_close": True,
         "close_time": '17:00:00',  # 1PM Atlantic
     },
 }

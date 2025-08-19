@@ -160,7 +160,8 @@ def main():
     parser.add_argument('-t', '--test', action='store_true', help="Use test TWS configuration.")
     parser.add_argument('-m24', '--monday24', action='store_true', help="Submit Monday Double Calendar using Monday 24 config.")
     parser.add_argument('-m37', '--monday37', action='store_true', help="Submit Monday Double Calendar using Monday 37 config.")
-    parser.add_argument('-w78', '--wednesday78', action='store_true', help="Submit Wednesday Double Calendar using Wednesday config.")
+    parser.add_argument('-w78', '--wednesday78', action='store_true', help="Submit Wednesday Double Calendar using Wednesday 78 config.")
+    parser.add_argument('-w15', '--wednesday15', action='store_true', help="Submit Wednesday Double Calendar using Wednesday 15 config.")
     parser.add_argument('-f57', '--friday57', action='store_true', help="Submit Friday Double Calendar using 57 config.")
     parser.add_argument('-f67', '--friday67', action='store_true', help="Submit Friday Double Calendar using 67 config.")
     parser.add_argument('-s', '--symbol', type=str, help="Trade a specific symbol only (overrides config list).")
@@ -179,10 +180,12 @@ def main():
         selected_configs.append(("Monday37", cfg.mon_dc37_symbols, cfg.mon_dc37_params))
     if args.wednesday78:
         selected_configs.append(("Wednesday78", cfg.wed_dc78_symbols, cfg.wed_dc78_params))
+    if args.wednesday15:
+        selected_configs.append(("Wednesday15", cfg.wed_dc15_symbols, cfg.wed_dc15_params))
 
     # Enforce exactly one config flag always
     if len(selected_configs) != 1:
-        logger.error("You must specify exactly one configuration: -f57, -f67, -m24, -m37, or -w78.")
+        logger.error("You must specify exactly one configuration: -f57, -f67, -m24, -m37, -w15 or -w78.")
         return
 
     cfg_name, cfg_symbols, cfg_params = selected_configs[0]
