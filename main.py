@@ -1,16 +1,21 @@
 import logging
+import sys
+
 from dcal import submit_double_calendar
 from ibstrat.market_data import get_current_mid_price
 from ibstrat.qualify import qualify_contract, get_front_month_contract_date
 from ibstrat.ib_instance import connect_to_ib
 from ibstrat.positions import load_positions, check_positions
 import cfg
-import sys
+import pandas as pd
+from datetime import datetime, timedelta, date
 from ibstrat.chain import fetch_option_chain,find_next_closest_expiry
 from ibstrat.options import find_option_by_target_delta,find_option_by_target_strike
 import argparse
 from ibstrat.dteutil import calculate_expiry_date
 from ibstrat.trclass import get_trading_class_for_symbol
+import pandas_market_calendars as mcal
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG,
@@ -27,6 +32,32 @@ logging.getLogger("ibstrat.market_data").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.options").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.chain").setLevel(logging.ERROR)
 logging.getLogger("ibstrat.orders").setLevel(logging.ERROR)
+
+# NYSE calendar (covers US stock market holidays)
+nyse = mcal.get_calendar("NYSE")
+
+def is_friday_before_monday_holiday(date_str: str) -> bool:
+    """
+    Return True if the given date string is a Friday immediately
+    before a Monday holiday on the US stock market calendar.
+    """
+    # Support both YYYY-MM-DD and YYYYMMDD formats
+    if "-" in date_str:
+        d = datetime.strptime(date_str, "%Y-%m-%d").date()
+    else:
+        d = datetime.strptime(date_str, "%Y%m%d").date()
+
+    if d.weekday() != 4:  # must be Friday
+        return False
+
+    monday = d + timedelta(days=3)
+
+    # If Monday is not a valid trading day on the NYSE calendar, it's a holiday/closure.
+    # Use valid_days which returns a DatetimeIndex of open days.
+    monday_ts = pd.Timestamp(monday)
+    valid = nyse.valid_days(start_date=monday_ts, end_date=monday_ts)
+    return len(valid) == 0
+
 
 def open_double_calendar(symbol: str, params: dict, is_live: bool):
     logger.info(f"Starting Double Calendar Trade Submission for {symbol}")
@@ -172,8 +203,14 @@ def main():
     selected_configs = []
     if args.friday57:
         selected_configs.append(("Friday57", cfg.fri_57dc_symbols, cfg.fri_57dc_params))
+        if is_friday_before_monday_holiday(date.today().strftime("%Y%m%d")):
+            logger.warning(f"Blackout date: Friday DC disabled for {date.today()}")
+            sys.exit(0)
     if args.friday67:
         selected_configs.append(("Friday67", cfg.fri_67dc_symbols, cfg.fri_67dc_params))
+        if is_friday_before_monday_holiday(date.today().strftime("%Y%m%d")):
+            logger.warning(f"Blackout date: Friday DC disabled for {date.today()}")
+            sys.exit(0)
     if args.monday24:
         selected_configs.append(("Monday24", cfg.mon_dc24_symbols, cfg.mon_dc24_params))
     if args.monday37:
